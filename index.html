@@ -2,449 +2,159 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d17">
-<title>Virtual Chemistry Lab V0.1.2</title>
-
+<title>Virtual Chemistry Lab V0.2</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e7edf5}
-button,input{font:inherit}
-button{user-select:none}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e8eef5}
+button,input,select{font:inherit}button{cursor:pointer}
 .app{min-height:100vh;display:flex;flex-direction:column}
-.header{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:linear-gradient(180deg,#101a2b,#0c1422);border-bottom:1px solid #233149;position:sticky;top:0;z-index:20}
-.logo-area{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#42d6a4,#287bd9);font-size:19px}
-.logo-text{display:flex;flex-direction:column}.logo-title{font-size:15px;font-weight:800}.logo-subtitle{font-size:9px;color:#7f91aa;margin-top:1px}
-.engine-status{display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #263750;border-radius:20px;background:#0d1727;font-size:10px;color:#9cafc5}
-.engine-dot{width:7px;height:7px;border-radius:50%;background:#68798e}.engine-dot.gpu{background:#42d6a4;box-shadow:0 0 9px rgba(66,214,164,.8)}.engine-dot.cpu{background:#e8b75d}
-.main{flex:1;display:grid;grid-template-columns:270px minmax(500px,1fr) 330px;gap:12px;padding:12px;max-width:1800px;width:100%;margin:auto}
-.panel,.info-panel{background:linear-gradient(180deg,#101a2a,#0c1523);border:1px solid #223149;border-radius:11px;overflow:hidden}
-.panel-header{height:42px;padding:0 13px;border-bottom:1px solid #223149;background:rgba(255,255,255,.015);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-size:11px;font-weight:800;letter-spacing:.4px}
-.btn{border:1px solid #30445e;background:linear-gradient(180deg,#16253a,#101c2c);color:#dce7f2;border-radius:6px;padding:6px 9px;font-size:9px;font-weight:700;cursor:pointer}.btn:hover{border-color:#4c779b}
-.left-panel{display:flex;flex-direction:column;min-height:720px}
-.library{padding:11px;border-bottom:1px solid #223149}.section-label{font-size:8px;color:#74879e;text-transform:uppercase;letter-spacing:.8px;margin:2px 0 7px}
-.molecule-list{display:flex;flex-direction:column;gap:6px;max-height:290px;overflow-y:auto}
-.molecule-card{border:1px solid #263750;border-radius:7px;background:#0d1726;padding:8px;cursor:pointer}.molecule-card:hover{border-color:#3979a7}
-.molecule-top{display:flex;align-items:center;justify-content:space-between}.molecule-name{font-size:10px;font-weight:700}.molecule-formula{font-family:Consolas,monospace;font-size:12px;color:#54d4aa;margin-top:2px}.molecule-meta{margin-top:5px;display:flex;justify-content:space-between;color:#74879c;font-size:7px}
-.add-molecule-button{margin-top:6px;width:100%;height:26px;border-radius:5px;border:1px solid #2b4e61;background:#0d1b29;color:#6fd8b7;font-size:8px;font-weight:700;cursor:pointer}.add-molecule-button:hover{background:#10283a;border-color:#3b8d91}
-.chamber{flex:1;display:flex;flex-direction:column;min-height:280px}.chamber-header{padding:10px 11px 6px;display:flex;justify-content:space-between}.chamber-title{font-size:9px;font-weight:800;color:#b7c7d8}.chamber-count{font-size:8px;color:#63778f}
-.chamber-list{padding:0 11px 8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:280px}.empty-chamber{padding:22px 8px;text-align:center;color:#596e86;font-size:8px;border:1px dashed #263850;border-radius:7px;line-height:1.6}
-.chamber-item{border:1px solid #263750;background:#0c1725;border-radius:7px;padding:7px}.chamber-item-top{display:flex;justify-content:space-between}.chamber-name{font-size:9px;font-weight:700}.chamber-formula{font-family:Consolas,monospace;color:#54d4aa;font-size:10px;margin-top:2px}
-.quantity-row{display:flex;align-items:center;gap:4px;margin-top:6px}.quantity-button{width:23px;height:23px;border-radius:4px;border:1px solid #30445e;background:#111f31;color:#b8c8d7;cursor:pointer;font-weight:800}.quantity-value{flex:1;height:23px;display:flex;align-items:center;justify-content:center;border:1px solid #263750;border-radius:4px;background:#09131f;font-family:Consolas,monospace;font-size:9px}.quantity-unit{font-size:7px;color:#61758b;width:30px}.remove-button{width:23px;height:23px;border-radius:4px;border:1px solid #4b3037;background:#201319;color:#c77d88;cursor:pointer}
-.chamber-footer{margin-top:auto;padding:8px 11px 11px;border-top:1px solid #1e2d42}.chamber-summary{display:flex;justify-content:space-between;font-size:8px;color:#657990;margin-bottom:6px}.clear-chamber{width:100%;height:27px;border-radius:5px;border:1px solid #33445a;background:#0d1827;color:#8295aa;font-size:8px;cursor:pointer}
-.simulation-panel{display:flex;flex-direction:column;min-height:720px}.simulation-stage{flex:1;min-height:500px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%,#142b40 0%,#0b1421 45%,#080e18 100%)}
-.grid{position:absolute;inset:0;opacity:.22;background-image:linear-gradient(rgba(120,170,210,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,210,.08) 1px,transparent 1px);background-size:32px 32px}
-.stage-label{position:absolute;top:12px;left:12px;padding:5px 8px;border:1px solid #2b405a;border-radius:5px;background:rgba(7,13,23,.72);font-size:8px;color:#91a5ba;z-index:2}.camera-info{position:absolute;right:12px;top:12px;font-size:8px;color:#637991;background:rgba(7,13,23,.6);padding:5px 7px;border-radius:5px;z-index:2}
-.molecule-canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}.molecule-canvas:active{cursor:grabbing}
-.canvas-info{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);text-align:center;color:#536a82;font-size:8px;pointer-events:none;white-space:nowrap}
-.zoom-indicator{position:absolute;left:12px;bottom:12px;z-index:2;display:flex;gap:4px;align-items:center}.zoom-btn{width:25px;height:25px;border:1px solid #2d425b;background:#0b1523cc;color:#a5b8ca;border-radius:5px;cursor:pointer}.zoom-value{font-size:8px;color:#70859c;background:#0b1523cc;padding:6px 7px;border-radius:5px}
-.simulation-footer{border-top:1px solid #223149;padding:10px;background:#0c1523}.controls-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px}.control{background:#0e1928;border:1px solid #263750;border-radius:7px;padding:7px}.control label{display:block;font-size:7px;color:#74879e;margin-bottom:3px}.control input{width:100%;border:0;outline:0;background:transparent;color:#eaf2f8;font-size:11px;font-weight:700}.control-unit{color:#63758b;font-size:7px}.run-row{display:flex;gap:7px}.run-button{flex:1;height:38px;border-radius:7px;border:1px solid #2eaa84;background:linear-gradient(180deg,#25a984,#167057);color:white;font-size:10px;font-weight:800;cursor:pointer}.run-button:disabled{opacity:.55;cursor:wait}.reset-button{width:85px;border-radius:7px;border:1px solid #30445e;background:#101c2c;color:#9eb0c2;cursor:pointer}
-.right-panel{display:flex;flex-direction:column;gap:12px;background:transparent;border:0;overflow:visible}.info-content{padding:11px}
-.inspector-title{font-size:15px;font-weight:800}.inspector-formula{font-family:Consolas,monospace;font-size:18px;color:#54d4aa;margin-top:3px}.inspector-type{color:#71869d;font-size:8px;margin-top:2px}
-.property-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.property{padding:7px;border:1px solid #263750;border-radius:6px;background:#0c1726}.property-label{font-size:7px;color:#6f8399}.property-value{margin-top:3px;font-size:9px;font-weight:800}
-.atom-list{display:flex;flex-direction:column;gap:5px}.atom-row{display:flex;justify-content:space-between;padding:7px;border-radius:5px;background:#0c1726;border:1px solid #223149;font-size:8px}.atom-symbol{color:#54d4aa;font-family:Consolas,monospace;font-weight:800}
-.result-main{font-size:11px;font-weight:800;margin-bottom:3px}.result-description{font-size:8px;line-height:1.45;color:#75899f;margin-bottom:10px}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.result-box{padding:7px;border:1px solid #263750;border-radius:6px;background:#0c1726}.result-label{font-size:7px;color:#6f8399}.result-value{margin-top:3px;font-size:10px;font-weight:800}.progress-area{display:none;margin-top:9px}.progress{height:6px;border-radius:8px;overflow:hidden;background:#07101c;border:1px solid #23344a}.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#31b993,#48a5e0);transition:width .08s linear}.progress-text{display:flex;justify-content:space-between;font-size:7px;color:#71859a;margin-top:3px}.warning{margin-top:8px;padding:7px;border:1px solid #554829;border-radius:6px;background:rgba(92,73,27,.13);color:#bda96b;font-size:7px;line-height:1.5}
-.log{max-height:145px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}.log-item{padding:7px;border:1px solid #23344b;border-radius:6px;background:#0b1523}.log-time{font-size:6px;color:#60748b;margin-bottom:2px}.log-title{font-size:8px;font-weight:700}
-.footer{padding:7px;border-top:1px solid #1d2a3d;color:#566a81;text-align:center;font-size:7px}
-
-@media(max-width:1250px){.main{grid-template-columns:245px minmax(420px,1fr)}.right-panel{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr)}}
-@media(max-width:850px){.header{padding:0 12px}.main{display:flex;flex-direction:column;padding:7px}.simulation-panel{order:1}.left-panel{order:2}.right-panel{order:3;display:flex}.simulation-stage{min-height:430px}.controls-row{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.logo-subtitle{display:none}.engine-status{font-size:7px}.main{padding:5px}.simulation-stage{min-height:390px}.controls-row{grid-template-columns:1fr 1fr}.run-row{flex-direction:column}.reset-button{width:100%;height:34px}.camera-info{display:none}}
+.header{height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#111b2b,#0c1422);border-bottom:1px solid #24334a}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:35px;height:35px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#45d4a5,#287bd9);font-size:19px}.title{font-size:15px;font-weight:800}.sub{font-size:9px;color:#7d90a7}
+.status{display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #283950;border-radius:18px;background:#0d1726;color:#91a6bb;font-size:9px}.dot{width:7px;height:7px;border-radius:50%;background:#e5b85d}.dot.ok{background:#45d4a5;box-shadow:0 0 8px #45d4a5}
+.main{width:100%;max-width:1800px;margin:auto;padding:12px;display:grid;grid-template-columns:270px minmax(500px,1fr) 340px;gap:12px;flex:1}
+.panel{background:linear-gradient(180deg,#101a2a,#0c1523);border:1px solid #23334a;border-radius:11px;overflow:hidden}.head{height:42px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #223149}.head b{font-size:10px;letter-spacing:.4px}.muted{font-size:8px;color:#657a91}
+.left{display:flex;flex-direction:column;min-height:730px}.section{padding:10px;border-bottom:1px solid #223149}.label{font-size:7px;color:#72869c;text-transform:uppercase;letter-spacing:.9px;margin-bottom:7px}
+.list{display:flex;flex-direction:column;gap:6px;max-height:285px;overflow:auto}.card{padding:8px;border:1px solid #263851;background:#0c1726;border-radius:7px}.card:hover{border-color:#3d718e}.ctop{display:flex;justify-content:space-between}.name{font-size:9px;font-weight:800}.type{font-size:7px;color:#6c8198}.formula{font:11px Consolas,monospace;color:#51d4a8;margin-top:2px}.meta{display:flex;justify-content:space-between;color:#6a7e94;font-size:7px;margin-top:5px}.add{width:100%;height:24px;margin-top:6px;border:1px solid #28536a;border-radius:5px;background:#0d1d2c;color:#62d9b2;font-size:8px;font-weight:800}
+.chamber{flex:1;display:flex;flex-direction:column}.chamber-list{padding:9px 10px;display:flex;flex-direction:column;gap:6px;overflow:auto;max-height:330px}.empty{padding:25px 8px;border:1px dashed #2a3b52;border-radius:7px;text-align:center;color:#60758c;font-size:8px;line-height:1.6}.item{padding:7px;border:1px solid #263851;border-radius:7px;background:#0c1726}.itop{display:flex;justify-content:space-between}.iname{font-size:9px;font-weight:800}.remove{width:21px;height:21px;border:1px solid #4b3037;background:#201319;color:#cb7e89;border-radius:4px}.qrow{display:flex;gap:4px;align-items:center;margin-top:6px}.qbtn{width:22px;height:22px;border:1px solid #30445d;background:#111f31;color:#b7c7d6;border-radius:4px}.qval{height:22px;flex:1;display:grid;place-items:center;border:1px solid #263750;border-radius:4px;background:#09131f;font:9px Consolas}.unit{font-size:7px;color:#64788e;width:28px;text-align:center}.chamber-foot{margin-top:auto;padding:9px 10px;border-top:1px solid #223149}.summary{display:flex;justify-content:space-between;color:#657991;font-size:8px;margin-bottom:6px}.clear{width:100%;height:27px;border:1px solid #33455c;border-radius:5px;background:#0d1827;color:#8b9caf;font-size:8px}
+.center{display:flex;flex-direction:column;min-height:730px}.stage{position:relative;flex:1;min-height:470px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#142c40 0,#0b1522 46%,#080e18 100%)}canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}.stage-label{position:absolute;top:11px;left:11px;padding:5px 7px;border:1px solid #2a4059;border-radius:5px;background:#07101dcc;color:#8da2b8;font-size:7px;z-index:2}.hint{position:absolute;right:11px;top:11px;color:#637991;font-size:7px;z-index:2}.canvas-note{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:7px;color:#556b82;pointer-events:none;white-space:nowrap}.zoom{position:absolute;bottom:11px;left:11px;display:flex;gap:4px;align-items:center}.zoom button{width:25px;height:25px;border:1px solid #2d425a;border-radius:5px;background:#0b1523dd;color:#a7b9c9}.zv{padding:6px 7px;border-radius:5px;background:#0b1523dd;color:#70849a;font-size:7px}
+.controls{padding:10px;border-top:1px solid #223149}.control-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.control{padding:7px;border:1px solid #263750;border-radius:7px;background:#0e1928}.control label{display:block;font-size:7px;color:#71859b;margin-bottom:4px}.control input,.control select{width:100%;border:0;outline:0;background:transparent;color:#e9f1f7;font-size:10px;font-weight:800}.unit2{font-size:7px;color:#657990}.action{display:flex;gap:7px;margin-top:8px}.run{flex:1;height:37px;border:1px solid #31a883;border-radius:7px;background:linear-gradient(180deg,#25aa85,#167057);color:#fff;font-size:9px;font-weight:900}.reset{width:85px;border:1px solid #30445d;border-radius:7px;background:#101c2c;color:#9badbf}.right{display:flex;flex-direction:column;gap:12px;background:transparent;border:0;overflow:visible}.content{padding:10px}.ins-title{font-size:14px;font-weight:900}.ins-formula{font:18px Consolas;color:#54d4aa;margin-top:2px}.props{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.prop{padding:7px;border:1px solid #263750;border-radius:6px;background:#0c1726}.pl{font-size:6px;color:#70849a}.pv{font-size:9px;font-weight:800;margin-top:3px}
+.composition{display:flex;flex-direction:column;gap:5px}.atom{padding:7px;border:1px solid #22344b;border-radius:5px;background:#0c1726;display:flex;justify-content:space-between;font-size:8px}.atom strong{color:#52d3aa;font-family:Consolas}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:6px}.box{padding:8px;border:1px solid #263750;border-radius:6px;background:#0c1726}.box .pl{font-size:6px}.big{font-size:13px;font-weight:900;margin-top:4px}.formula-box{margin-top:7px;padding:7px;border:1px dashed #314761;border-radius:6px;background:#0a1421;font:9px Consolas;color:#b5c7d8}
+.reaction{margin-top:7px;padding:8px;border:1px solid #263750;border-radius:6px;background:#0c1726}.reaction-title{font-size:8px;font-weight:900}.reaction-line{font:10px Consolas;color:#62d9b2;margin-top:5px}.reaction-note{font-size:7px;color:#74889e;margin-top:4px;line-height:1.4}
+.log{max-height:130px;overflow:auto;display:flex;flex-direction:column;gap:5px}.logitem{padding:7px;border:1px solid #22344b;border-radius:6px;background:#0b1523}.time{font-size:6px;color:#60748b}.ltitle{font-size:8px;font-weight:800;margin-top:2px}.ldesc{font-size:7px;color:#62768d;margin-top:2px}
+.warning{margin-top:7px;padding:7px;border:1px solid #554829;border-radius:6px;background:#5c491b20;color:#bca96d;font-size:7px;line-height:1.45}
+.footer{padding:7px;border-top:1px solid #1e2b3e;text-align:center;color:#566a80;font-size:7px}
+@media(max-width:1250px){.main{grid-template-columns:245px minmax(430px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:850px){.main{display:flex;flex-direction:column;padding:6px}.right{display:flex}.left{order:2;min-height:auto}.center{order:1;min-height:650px}.right{order:3}.stage{min-height:420px}.control-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.header{padding:0 11px}.sub{display:none}.status{font-size:7px}.main{padding:4px}.center{min-height:600px}.stage{min-height:380px}.action{flex-direction:column}.reset{width:100%;height:34px}}
 </style>
 </head>
-
 <body>
 <div class="app">
-
 <header class="header">
-  <div class="logo-area">
-    <div class="logo">🧪</div>
-    <div class="logo-text">
-      <div class="logo-title">Virtual Chemistry Lab</div>
-      <div class="logo-subtitle">Explore · Simulate · Discover</div>
-    </div>
-  </div>
-  <div class="engine-status">
-    <span id="engineDot" class="engine-dot"></span>
-    <span id="engineText">Detecting compute engine...</span>
-  </div>
+ <div class="brand"><div class="logo">🧪</div><div><div class="title">Virtual Chemistry Lab</div><div class="sub">Explore · Calculate · Simulate · Discover</div></div></div>
+ <div class="status"><span id="dot" class="dot"></span><span id="statusText">Detecting engine...</span></div>
 </header>
 
 <main class="main">
-
-<section class="panel left-panel">
-  <div class="library">
-    <div class="panel-header" style="padding:0 0 9px;border:0;background:transparent">
-      <div class="panel-title">MOLECULE LIBRARY</div>
-      <button class="btn" onclick="addCustomMolecule()">+ Custom</button>
-    </div>
-    <div class="section-label">Available substances</div>
-    <div id="moleculeList" class="molecule-list"></div>
-  </div>
-
-  <div class="chamber">
-    <div class="chamber-header">
-      <div class="chamber-title">EXPERIMENT CHAMBER</div>
-      <div id="chamberCount" class="chamber-count">0 substances</div>
-    </div>
-    <div id="chamberList" class="chamber-list">
-      <div class="empty-chamber">Your chamber is empty.<br>Add substances from the library above.</div>
-    </div>
-    <div class="chamber-footer">
-      <div class="chamber-summary">
-        <span>Total particles</span><strong id="totalParticles">0</strong>
-      </div>
-      <button class="clear-chamber" onclick="clearChamber()">Clear Chamber</button>
-    </div>
-  </div>
+<section class="panel left">
+ <div class="head"><b>MOLECULE LIBRARY</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="customMolecule()">+ Custom</button></div>
+ <div class="section"><div class="label">Available substances</div><div id="library" class="list"></div></div>
+ <div class="chamber">
+  <div class="head"><b>EXPERIMENT CHAMBER</b><span id="chamberCount" class="muted">0 substances</span></div>
+  <div id="chamber" class="chamber-list"></div>
+  <div class="chamber-foot"><div class="summary"><span>Total units</span><strong id="totalUnits">0</strong></div><button class="clear" onclick="clearChamber()">Clear Chamber</button></div>
+ </div>
 </section>
 
-<section class="panel simulation-panel">
-  <div class="panel-header">
-    <div class="panel-title">MOLECULAR VIEW</div>
-    <div id="simulationStatus" style="font-size:8px;color:#71869c">Chamber empty</div>
+<section class="panel center">
+ <div class="head"><b>MOLECULAR VIEW</b><span id="stageStatus" class="muted">Chamber empty</span></div>
+ <div class="stage">
+  <div class="stage-label">INTERACTIVE MOLECULAR ENVIRONMENT</div><div class="hint">Drag · Scroll · Click molecule</div>
+  <canvas id="canvas"></canvas>
+  <div id="canvasNote" class="canvas-note">Add substances to the chamber</div>
+  <div class="zoom"><button onclick="zoomBy(-.1)">−</button><span id="zoomValue" class="zv">100%</span><button onclick="zoomBy(.1)">+</button></div>
+ </div>
+ <div class="controls">
+  <div class="control-grid">
+   <div class="control"><label>TEMPERATURE</label><input id="temp" type="number" value="25"><span class="unit2">°C</span></div>
+   <div class="control"><label>PRESSURE</label><input id="pressure" type="number" value="1" step=".1" min=".01"><span class="unit2">atm</span></div>
+   <div class="control"><label>CONCENTRATION</label><input id="conc" type="number" value="1" step=".1" min=".001"><span class="unit2">mol/L</span></div>
+   <div class="control"><label>AMOUNT</label><input id="amount" type="number" value="1" step=".1" min=".001"><span class="unit2">mol</span></div>
   </div>
-
-  <div class="simulation-stage">
-    <div class="grid"></div>
-    <div class="stage-label">3D MOLECULAR ENVIRONMENT</div>
-    <div class="camera-info">Drag · Scroll · Click molecule</div>
-    <canvas id="moleculeCanvas" class="molecule-canvas"></canvas>
-    <div id="canvasInfo" class="canvas-info">Add substances to the chamber</div>
-    <div class="zoom-indicator">
-      <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
-      <div id="zoomValue" class="zoom-value">100%</div>
-      <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
-    </div>
-  </div>
-
-  <div class="simulation-footer">
-    <div class="controls-row">
-      <div class="control"><label>TEMPERATURE</label><input id="temperature" type="number" value="25"><span class="control-unit">°C</span></div>
-      <div class="control"><label>PRESSURE</label><input id="pressure" type="number" value="1" step="0.1"><span class="control-unit">atm</span></div>
-      <div class="control"><label>CONCENTRATION</label><input id="concentration" type="number" value="1" step="0.1"><span class="control-unit">mol/L</span></div>
-      <div class="control"><label>SIMULATION TIME</label><input id="simTime" type="number" value="10"><span class="control-unit">ns</span></div>
-    </div>
-    <div class="run-row">
-      <button id="runButton" class="run-button" onclick="runSimulation()">🔬 RUN SIMULATION</button>
-      <button class="reset-button" onclick="resetExperiment()">Reset</button>
-    </div>
-  </div>
+  <div class="action"><button id="run" class="run" onclick="runScience()">🔬 RUN SCIENTIFIC MODEL</button><button class="reset" onclick="resetAll()">Reset</button></div>
+ </div>
 </section>
 
-<aside class="right-panel">
-
-<div class="info-panel">
-  <div class="panel-header"><div class="panel-title">MOLECULE INSPECTOR</div></div>
-  <div class="info-content">
-    <div id="inspectorTitle" class="inspector-title">No molecule selected</div>
-    <div id="inspectorFormula" class="inspector-formula">—</div>
-    <div id="inspectorType" class="inspector-type">Click a molecule to inspect it.</div>
-    <div class="property-grid">
-      <div class="property"><div class="property-label">MOLECULAR MASS</div><div id="propertyMass" class="property-value">—</div></div>
-      <div class="property"><div class="property-label">ATOMS</div><div id="propertyAtoms" class="property-value">—</div></div>
-      <div class="property"><div class="property-label">BONDS</div><div id="propertyBonds" class="property-value">—</div></div>
-      <div class="property"><div class="property-label">GEOMETRY</div><div id="propertyGeometry" class="property-value">—</div></div>
-      <div class="property"><div class="property-label">BOND ANGLE</div><div id="propertyAngle" class="property-value">—</div></div>
-      <div class="property"><div class="property-label">POLARITY</div><div id="propertyPolarity" class="property-value">—</div></div>
-    </div>
+<aside class="right">
+ <div class="panel"><div class="head"><b>MOLECULE INSPECTOR</b></div><div class="content">
+  <div id="insTitle" class="ins-title">No molecule selected</div><div id="insFormula" class="ins-formula">—</div><div id="insType" class="muted" style="margin-top:2px">Click a library card or molecule.</div>
+  <div class="props">
+   <div class="prop"><div class="pl">MOLECULAR MASS</div><div id="mass" class="pv">—</div></div><div class="prop"><div class="pl">ATOMS</div><div id="atoms" class="pv">—</div></div>
+   <div class="prop"><div class="pl">BONDS</div><div id="bonds" class="pv">—</div></div><div class="prop"><div class="pl">GEOMETRY</div><div id="geometry" class="pv">—</div></div>
+   <div class="prop"><div class="pl">BOND ANGLE</div><div id="angle" class="pv">—</div></div><div class="prop"><div class="pl">POLARITY</div><div id="polarity" class="pv">—</div></div>
   </div>
-</div>
+ </div></div>
 
-<div class="info-panel">
-  <div class="panel-header"><div class="panel-title">ATOMIC COMPOSITION</div></div>
-  <div class="info-content"><div id="atomList" class="atom-list"><div style="color:#62768d;font-size:8px">Select a molecule.</div></div></div>
-</div>
+ <div class="panel"><div class="head"><b>ATOMIC COMPOSITION</b></div><div class="content"><div id="composition" class="composition"><div class="muted">Select a molecule.</div></div></div></div>
 
-<div class="info-panel">
-  <div class="panel-header"><div class="panel-title">SIMULATION RESULT</div></div>
-  <div class="info-content">
-    <div id="resultTitle" class="result-main">Ready for experiment</div>
-    <div id="resultDescription" class="result-description">Add substances to the chamber and start a simulation.</div>
-    <div class="result-grid">
-      <div class="result-box"><div class="result-label">PARTICLES</div><div id="particleResult" class="result-value">—</div></div>
-      <div class="result-box"><div class="result-label">ITERATIONS</div><div id="iterationResult" class="result-value">—</div></div>
-      <div class="result-box"><div class="result-label">ENGINE</div><div id="engineResult" class="result-value">—</div></div>
-      <div class="result-box"><div class="result-label">SPEED</div><div id="speedResult" class="result-value">—</div></div>
-    </div>
-    <div id="progressArea" class="progress-area">
-      <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
-      <div class="progress-text"><span id="progressLabel">Waiting...</span><span id="progressPercent">0%</span></div>
-    </div>
-    <div class="warning">⚠ V0.1.2 is an educational / exploratory simulation prototype. The current engine visualizes molecular structures but does not predict real chemical reactions.</div>
+ <div class="panel"><div class="head"><b>SCIENTIFIC CALCULATION</b><span class="muted">V0.2</span></div><div class="content">
+  <div class="calc">
+   <div class="box"><div class="pl">IDEAL GAS VOLUME</div><div id="volume" class="big">—</div></div>
+   <div class="box"><div class="pl">MOLES</div><div id="moles" class="big">—</div></div>
+   <div class="box"><div class="pl">TEMPERATURE</div><div id="calcTemp" class="big">—</div></div>
+   <div class="box"><div class="pl">PRESSURE</div><div id="calcPressure" class="big">—</div></div>
   </div>
-</div>
+  <div class="formula-box">PV = nRT<br>R = 0.082057 L·atm·mol⁻¹·K⁻¹</div>
+  <div class="reaction"><div class="reaction-title">REACTION CHECK</div><div id="reactionLine" class="reaction-line">No reaction model selected.</div><div id="reactionNote" class="reaction-note">V0.2 includes a small set of educational stoichiometric rules. It does not predict arbitrary chemistry.</div></div>
+ </div></div>
 
-<div class="info-panel">
-  <div class="panel-header">
-    <div class="panel-title">EXPERIMENT LOG</div>
-    <button class="btn" onclick="clearLog()">Clear</button>
-  </div>
-  <div class="info-content">
-    <div id="experimentLog" class="log"><div id="emptyLog" style="color:#62768d;font-size:8px">No experiments yet.</div></div>
-  </div>
-</div>
-
+ <div class="panel"><div class="head"><b>EXPERIMENT LOG</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="clearLog()">Clear</button></div><div class="content"><div id="log" class="log"><div id="emptyLog" class="muted">No experiments yet.</div></div></div></div>
 </aside>
 </main>
-
-<footer class="footer">Virtual Chemistry Lab V0.1.2 · Interactive Molecular Laboratory Prototype</footer>
+<footer class="footer">Virtual Chemistry Lab V0.2 · Browser-based educational scientific model · Not a substitute for laboratory validation</footer>
 </div>
 
 <script>
-const molecules=[
-{id:"water",name:"Water",formula:"H₂O",mass:18.015,type:"Solvent",geometry:"Bent",angle:"104.5°",polarity:"Polar",bonds:2,atoms:[
-{element:"O",x:0,y:0,z:0,radius:1.15},{element:"H",x:-.76,y:.59,z:0,radius:.75},{element:"H",x:.76,y:.59,z:0,radius:.75}],bondsData:[[0,1],[0,2]]},
-{id:"carbon-dioxide",name:"Carbon Dioxide",formula:"CO₂",mass:44.010,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",bonds:2,atoms:[
-{element:"O",x:-1.16,y:0,z:0,radius:1.15},{element:"C",x:0,y:0,z:0,radius:1},{element:"O",x:1.16,y:0,z:0,radius:1.15}],bondsData:[[0,1],[1,2]]},
-{id:"oxygen",name:"Oxygen",formula:"O₂",mass:31.998,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",bonds:1,atoms:[
-{element:"O",x:-.7,y:0,z:0,radius:1.15},{element:"O",x:.7,y:0,z:0,radius:1.15}],bondsData:[[0,1]]},
-{id:"hydrogen",name:"Hydrogen",formula:"H₂",mass:2.016,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",bonds:1,atoms:[
-{element:"H",x:-.65,y:0,z:0,radius:.75},{element:"H",x:.65,y:0,z:0,radius:.75}],bondsData:[[0,1]]},
-{id:"sodium-chloride",name:"Sodium Chloride",formula:"NaCl",mass:58.440,type:"Ionic compound",geometry:"Diatomic",angle:"—",polarity:"Ionic",bonds:1,atoms:[
-{element:"Na",x:-.9,y:0,z:0,radius:1.25},{element:"Cl",x:.9,y:0,z:0,radius:1.35}],bondsData:[[0,1]]},
-{id:"ethanol",name:"Ethanol",formula:"C₂H₆O",mass:46.069,type:"Organic",geometry:"Tetrahedral / bent",angle:"≈109.5°",polarity:"Polar",bonds:8,atoms:[
-{element:"C",x:-.75,y:0,z:0,radius:1},{element:"C",x:.75,y:0,z:0,radius:1},{element:"O",x:1.55,y:.55,z:0,radius:1.15},
-{element:"H",x:-1.15,y:.75,z:.35,radius:.75},{element:"H",x:-1.15,y:-.65,z:.35,radius:.75},{element:"H",x:-.75,y:0,z:-.8,radius:.75},
-{element:"H",x:.75,y:.8,z:.45,radius:.75},{element:"H",x:.75,y:-.8,z:.45,radius:.75},{element:"H",x:2.05,y:.9,z:.15,radius:.75}],bondsData:[[0,1],[1,2],[0,3],[0,4],[0,5],[1,6],[1,7],[2,8]]}
+const DB=[
+{id:"water",name:"Water",formula:"H₂O",mass:18.015,type:"Solvent",geometry:"Bent",angle:"104.5°",polarity:"Polar",atoms:[["O",1],["H",2]],bonds:2,draw:[{e:"O",x:0,y:0,r:1.15},{e:"H",x:-.76,y:.58,r:.75},{e:"H",x:.76,y:.58,r:.75}],links:[[0,1],[0,2]]},
+{id:"co2",name:"Carbon Dioxide",formula:"CO₂",mass:44.010,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["C",1],["O",2]],bonds:2,draw:[{e:"O",x:-1.15,y:0,r:1.15},{e:"C",x:0,y:0,r:1},{e:"O",x:1.15,y:0,r:1.15}],links:[[0,1],[1,2]]},
+{id:"o2",name:"Oxygen",formula:"O₂",mass:31.998,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["O",2]],bonds:1,draw:[{e:"O",x:-.68,y:0,r:1.15},{e:"O",x:.68,y:0,r:1.15}],links:[[0,1]]},
+{id:"h2",name:"Hydrogen",formula:"H₂",mass:2.016,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["H",2]],bonds:1,draw:[{e:"H",x:-.65,y:0,r:.75},{e:"H",x:.65,y:0,r:.75}],links:[[0,1]]},
+{id:"n2",name:"Nitrogen",formula:"N₂",mass:28.014,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["N",2]],bonds:1,draw:[{e:"N",x:-.68,y:0,r:1.1},{e:"N",x:.68,y:0,r:1.1}],links:[[0,1]]},
+{id:"nacl",name:"Sodium Chloride",formula:"NaCl",mass:58.440,type:"Ionic compound",geometry:"Diatomic",angle:"—",polarity:"Ionic",atoms:[["Na",1],["Cl",1]],bonds:1,draw:[{e:"Na",x:-.85,y:0,r:1.2},{e:"Cl",x:.85,y:0,r:1.3}],links:[[0,1]]},
+{id:"ch4",name:"Methane",formula:"CH₄",mass:16.043,type:"Gas",geometry:"Tetrahedral",angle:"109.5°",polarity:"Non-polar",atoms:[["C",1],["H",4]],bonds:4,draw:[{e:"C",x:0,y:0,r:1.05},{e:"H",x:-.9,y:.55,r:.72},{e:"H",x:.9,y:.55,r:.72},{e:"H",x:-.7,y:-.7,r:.72},{e:"H",x:.7,y:-.7,r:.72}],links:[[0,1],[0,2],[0,3],[0,4]]}
 ];
+const colors={H:"#dce8f3",C:"#778694",O:"#df6c6c",N:"#628ee1",Na:"#c99252",Cl:"#67c978"};
+let selected=null,chamber=[],engine="CPU",zoom=1,rx=-.15,ry=.4,frame=0,drag=false,lx=0,ly=0;
 
-const elementStyle={H:{label:"Hydrogen",color:"#dce8f3"},C:{label:"Carbon",color:"#7e8b9a"},O:{label:"Oxygen",color:"#e16b6b"},Na:{label:"Sodium",color:"#c99050"},Cl:{label:"Chlorine",color:"#65c978"},"?":{label:"Unknown",color:"#54d4aa"}};
-
-let selectedMolecule=null,chamber=[],computeEngine="CPU",simulationRunning=false;
-let rotationX=-.15,rotationY=.45,zoom=1,simulationFrame=0;
-let mouseDown=false,lastMouseX=0,lastMouseY=0,hoveredIndex=-1;
-
-const canvas=document.getElementById("moleculeCanvas"),ctx=canvas.getContext("2d");
-
-function renderMolecules(){
- const list=document.getElementById("moleculeList"); list.innerHTML="";
- molecules.forEach(m=>{
-  const card=document.createElement("div"); card.className="molecule-card";
-  card.innerHTML=`<div class="molecule-top"><div class="molecule-name">${m.name}</div><div style="font-size:7px;color:#64788f">${m.type}</div></div>
-  <div class="molecule-formula">${m.formula}</div>
-  <div class="molecule-meta"><span>${m.atoms.length} atoms</span><span>${m.mass?m.mass.toFixed(3):"—"} g/mol</span></div>
-  <button class="add-molecule-button">+ Add to Chamber</button>`;
-  card.addEventListener("click",e=>e.target.closest(".add-molecule-button")?addToChamber(m):selectMolecule(m));
-  list.appendChild(card);
+const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+function renderLibrary(){
+ const el=document.getElementById("library");el.innerHTML="";
+ DB.forEach(m=>{
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML=`<div class="ctop"><span class="name">${m.name}</span><span class="type">${m.type}</span></div><div class="formula">${m.formula}</div><div class="meta"><span>${m.draw.length} atoms</span><span>${m.mass.toFixed(3)} g/mol</span></div><button class="add">+ Add to Chamber</button>`;
+  c.querySelector(".add").onclick=e=>{e.stopPropagation();addChamber(m)};c.onclick=()=>inspect(m);el.appendChild(c);
  });
 }
-
-function selectMolecule(m){
- selectedMolecule=m; rotationX=-.15; rotationY=.45; updateInspector(); updateStage();
- document.getElementById("simulationStatus").textContent=m.formula;
- addLog("Molecule inspected",`${m.name} · ${m.formula}`);
+function inspect(m){selected=m;document.getElementById("insTitle").textContent=m.name;document.getElementById("insFormula").textContent=m.formula;document.getElementById("insType").textContent=m.type;
+ document.getElementById("mass").textContent=m.mass.toFixed(3)+" g/mol";document.getElementById("atoms").textContent=m.draw.length;document.getElementById("bonds").textContent=m.bonds;document.getElementById("geometry").textContent=m.geometry;document.getElementById("angle").textContent=m.angle;document.getElementById("polarity").textContent=m.polarity;
+ const c=document.getElementById("composition");c.innerHTML="";m.atoms.forEach(a=>{const d=document.createElement("div");d.className="atom";d.innerHTML=`<span><strong>${a[0]}</strong> ${a[0]}</span><b>× ${a[1]}</b>`;c.appendChild(d)});draw();
 }
+function addChamber(m){let x=chamber.find(i=>i.m.id===m.id);if(x)x.qty++;else chamber.push({m,qty:1});inspect(m);renderChamber();draw();addLog("Substance added",`${m.formula} × 1`)}
+function changeQty(id,d){const x=chamber.find(i=>i.m.id===id);if(!x)return;x.qty+=d;if(x.qty<1)chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw()}
+function removeQty(id){const x=chamber.find(i=>i.m.id===id);chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(x)addLog("Substance removed",x.m.formula)}
+function renderChamber(){const el=document.getElementById("chamber"),count=document.getElementById("chamberCount"),total=document.getElementById("totalUnits");if(!chamber.length){el.innerHTML='<div class="empty">Your chamber is empty.<br>Add substances from the library.</div>';count.textContent="0 substances";total.textContent="0";return}el.innerHTML="";let t=0;chamber.forEach(x=>{t+=x.qty;const d=document.createElement("div");d.className="item";d.innerHTML=`<div class="itop"><div><div class="iname">${x.m.name}</div><div class="formula">${x.m.formula}</div></div><button class="remove">×</button></div><div class="qrow"><button class="qbtn">−</button><div class="qval">${x.qty}</div><button class="qbtn">+</button><span class="unit">units</span></div>`;
+ d.querySelector(".remove").onclick=()=>removeQty(x.m.id);const q=d.querySelectorAll(".qbtn");q[0].onclick=()=>changeQty(x.m.id,-1);q[1].onclick=()=>changeQty(x.m.id,1);el.appendChild(d)});count.textContent=`${chamber.length} substances`;total.textContent=t}
+function clearChamber(){if(!chamber.length)return;chamber=[];renderChamber();draw();document.getElementById("stageStatus").textContent="Chamber empty";addLog("Chamber cleared","All substances removed")}
+function customMolecule(){const f=prompt("輸入化學式，例如 NH₃ 或 CH₄：");if(!f)return;const n=prompt("輸入名稱：","Custom Compound")||"Custom Compound";const m={id:"custom"+Date.now(),name:n,formula:f,mass:0,type:"Custom",geometry:"Unknown",angle:"—",polarity:"Unknown",atoms:[["?",1]],bonds:0,draw:[{e:"?",x:0,y:0,r:1}],links:[]};DB.push(m);renderLibrary();inspect(m);addLog("Custom substance created",f)}
 
-function addToChamber(m){
- const existing=chamber.find(x=>x.id===m.id);
- if(existing) existing.quantity++;
- else chamber.push({id:m.id,molecule:m,quantity:1});
- selectedMolecule=m; updateInspector(); renderChamber(); updateStage();
- document.getElementById("simulationStatus").textContent="Ready";
- addLog("Substance added to chamber",`${m.formula} × 1`);
+function resize(){const r=canvas.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)}
+function rot(p){let x=p.x,y=p.y,z=0,cy=Math.cos(ry),sy=Math.sin(ry);let xx=x*cy-z*sy,zz=x*sy+z*cy;let cx=Math.cos(rx),sx=Math.sin(rx);return{x:xx,y:y*cx-zz*sx,z:y*sx+zz*cx}}
+function proj(p){const w=canvas.clientWidth,h=canvas.clientHeight,s=145*zoom/(7-p.z);return{x:w/2+p.x*s,y:h/2-p.y*s,s,z:p.z}}
+function atom(a,p){let col=colors[a.e]||"#55d3ad",r=a.r*p.s*.52;let g=ctx.createRadialGradient(p.x-r*.35,p.y-r*.35,r*.05,p.x,p.y,r);g.addColorStop(0,"#fff");g.addColorStop(.18,col);g.addColorStop(1,"#162431");ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="#b9d5df66";ctx.stroke();ctx.fillStyle="#eff8ff";ctx.font=Math.max(8,r*.7)+"px Segoe UI";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(a.e,p.x,p.y)}
+function bond(a,b){ctx.strokeStyle="#6a8295";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+function drawMol(m,cx,cy,k=.6){let ps=m.draw.map(a=>proj(rot(a)));ps.forEach(p=>{p.x=cx+(p.x-canvas.clientWidth/2)*k;p.y=cy+(p.y-canvas.clientHeight/2)*k;p.s*=k});m.links.forEach(l=>bond(ps[l[0]],ps[l[1]]));ps.sort((a,b)=>a.z-b.z);ps.forEach((p,i)=>atom(m.draw[i],p))}
+function draw(){resize();const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);if(!chamber.length){document.getElementById("canvasNote").textContent="Add substances to the chamber";return}
+ document.getElementById("canvasNote").textContent=chamber.map(x=>x.m.formula+" × "+x.qty).join("   ·   ");document.getElementById("stageStatus").textContent="Ready";
+ let arr=[];chamber.forEach(x=>{for(let i=0;i<Math.min(x.qty,5);i++)arr.push(x.m)});arr.forEach((m,i)=>{let a=i/Math.max(arr.length,1)*Math.PI*2,r=Math.min(w,h)*.25;drawMol(m,w/2+Math.cos(a)*r,h/2+Math.sin(a)*r*.55,.58)});
+ for(let i=0;i<35;i++){let a=frame*.001+i*1.37,r=75+(i%8)*29;ctx.beginPath();ctx.arc(w/2+Math.cos(a)*r,h/2+Math.sin(a)*r*.6,1.2,0,Math.PI*2);ctx.fillStyle="#65b7dc77";ctx.fill()}
 }
+function loop(){frame++;if(!drag&&chamber.length)ry+=.002;draw();requestAnimationFrame(loop)}
+function zoomBy(d){zoom=Math.max(.5,Math.min(2.3,zoom+d));document.getElementById("zoomValue").textContent=Math.round(zoom*100)+"%"}
+canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?.1:-.1)},{passive:false});canvas.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY});window.addEventListener("mouseup",()=>drag=false);window.addEventListener("mousemove",e=>{if(!drag)return;ry+=(e.clientX-lx)*.01;rx=Math.max(-1.5,Math.min(1.5,rx+(e.clientY-ly)*.01));lx=e.clientX;ly=e.clientY});
+window.addEventListener("resize",resize);
 
-function changeQuantity(id,delta){
- const item=chamber.find(x=>x.id===id); if(!item)return;
- item.quantity+=delta;
- if(item.quantity<=0) chamber=chamber.filter(x=>x.id!==id);
- renderChamber(); updateStage();
-}
+async function detect(){try{if(navigator.gpu&&await navigator.gpu.requestAdapter()){engine="WebGPU";document.getElementById("dot").className="dot ok";document.getElementById("statusText").textContent="WebGPU acceleration available";return}}catch(e){}engine="CPU";document.getElementById("statusText").textContent="CPU fallback mode"}
+function scientificCalc(){const T=Number(document.getElementById("temp").value)||25,P=Math.max(.0001,Number(document.getElementById("pressure").value)||1),n=Math.max(.0001,Number(document.getElementById("amount").value)||1),K=T+273.15,R=.082057,V=n*R*K/P;document.getElementById("volume").textContent=V.toFixed(3)+" L";document.getElementById("moles").textContent=n.toFixed(3)+" mol";document.getElementById("calcTemp").textContent=T.toFixed(1)+" °C";document.getElementById("calcPressure").textContent=P.toFixed(2)+" atm";return{T,P,n,V}}
+function reactionCheck(){const ids=chamber.map(x=>x.m.id);let line="No reaction model selected.",note="No supported educational reaction detected.";if(ids.includes("h2")&&ids.includes("o2")){line="2 H₂ + O₂ → 2 H₂O";note="Educational stoichiometric check: H₂ and O₂ can form water under appropriate conditions. This model does not calculate kinetics or ignition conditions."}else if(ids.includes("n2")&&ids.includes("h2")){line="N₂ + 3 H₂ → 2 NH₃";note="Educational stoichiometric relationship only; catalyst, pressure, temperature and kinetics are not modeled."}else if(ids.includes("ch4")&&ids.includes("o2")){line="CH₄ + 2 O₂ → CO₂ + 2 H₂O";note="Educational combustion equation only; real combustion behavior is not predicted."}document.getElementById("reactionLine").textContent=line;document.getElementById("reactionNote").textContent=note;return line}
+async function runScience(){if(!chamber.length){alert("請先加入至少一種物質。");return}const btn=document.getElementById("run");btn.disabled=true;btn.textContent="⏳ CALCULATING...";const c=scientificCalc(),rxn=reactionCheck();await new Promise(r=>setTimeout(r,650));addLog("Scientific model completed",`PV=nRT → ${c.V.toFixed(3)} L at ${c.T.toFixed(1)} °C and ${c.P.toFixed(2)} atm · ${rxn}`);btn.disabled=false;btn.textContent="🔬 RUN SCIENTIFIC MODEL"}
+function resetAll(){chamber=[];selected=null;renderChamber();document.getElementById("volume").textContent="—";document.getElementById("moles").textContent="—";document.getElementById("calcTemp").textContent="—";document.getElementById("calcPressure").textContent="—";document.getElementById("reactionLine").textContent="No reaction model selected.";document.getElementById("reactionNote").textContent="V0.2 includes a small set of educational stoichiometric rules. It does not predict arbitrary chemistry.";document.getElementById("stageStatus").textContent="Chamber empty";draw();addLog("Experiment reset","Conditions and chamber reset")}
+function addLog(t,d){const l=document.getElementById("log"),e=document.getElementById("emptyLog");if(e)e.remove();const x=document.createElement("div");x.className="logitem";x.innerHTML=`<div class="time">${new Date().toLocaleTimeString()}</div><div class="ltitle">${t}</div><div class="ldesc">${d}</div>`;l.prepend(x)}
+function clearLog(){document.getElementById("log").innerHTML='<div id="emptyLog" class="muted">No experiments yet.</div>'}
 
-function removeFromChamber(id){
- const item=chamber.find(x=>x.id===id); chamber=chamber.filter(x=>x.id!==id);
- renderChamber(); updateStage(); if(item)addLog("Substance removed",item.molecule.formula);
-}
-
-function renderChamber(){
- const c=document.getElementById("chamberList"),count=document.getElementById("chamberCount"),total=document.getElementById("totalParticles");
- if(!chamber.length){
-  c.innerHTML=`<div class="empty-chamber">Your chamber is empty.<br>Add substances from the library above.</div>`;
-  count.textContent="0 substances"; total.textContent="0"; return;
- }
- c.innerHTML=""; let t=0;
- chamber.forEach(item=>{
-  t+=item.quantity;
-  const row=document.createElement("div"); row.className="chamber-item";
-  row.innerHTML=`<div class="chamber-item-top"><div><div class="chamber-name">${item.molecule.name}</div><div class="chamber-formula">${item.molecule.formula}</div></div>
-  <button class="remove-button" onclick="removeFromChamber('${item.id}')">×</button></div>
-  <div class="quantity-row"><button class="quantity-button" onclick="changeQuantity('${item.id}',-1)">−</button><div class="quantity-value">${item.quantity}</div><button class="quantity-button" onclick="changeQuantity('${item.id}',1)">+</button><div class="quantity-unit">units</div></div>`;
-  c.appendChild(row);
- });
- count.textContent=`${chamber.length} ${chamber.length===1?"substance":"substances"}`; total.textContent=t.toLocaleString();
-}
-
-function clearChamber(){
- if(!chamber.length)return; chamber=[]; renderChamber(); updateStage();
- document.getElementById("simulationStatus").textContent="Chamber empty"; addLog("Chamber cleared","All substances removed");
-}
-
-function updateInspector(){
- const ids=["inspectorTitle","inspectorFormula","inspectorType","propertyMass","propertyAtoms","propertyBonds","propertyGeometry","propertyAngle","propertyPolarity"];
- if(!selectedMolecule){
-  document.getElementById("inspectorTitle").textContent="No molecule selected"; document.getElementById("inspectorFormula").textContent="—"; document.getElementById("inspectorType").textContent="Click a molecule to inspect it."; return;
- }
- const m=selectedMolecule;
- document.getElementById("inspectorTitle").textContent=m.name;
- document.getElementById("inspectorFormula").textContent=m.formula;
- document.getElementById("inspectorType").textContent=m.type;
- document.getElementById("propertyMass").textContent=m.mass?m.mass.toFixed(3)+" g/mol":"Unknown";
- document.getElementById("propertyAtoms").textContent=m.atoms.length;
- document.getElementById("propertyBonds").textContent=m.bonds||"Unknown";
- document.getElementById("propertyGeometry").textContent=m.geometry;
- document.getElementById("propertyAngle").textContent=m.angle;
- document.getElementById("propertyPolarity").textContent=m.polarity;
- renderAtomList();
-}
-
-function renderAtomList(){
- const c=document.getElementById("atomList"); c.innerHTML="";
- if(!selectedMolecule){c.innerHTML='<div style="color:#62768d;font-size:8px">Select a molecule.</div>';return}
- const counts={}; selectedMolecule.atoms.forEach(a=>counts[a.element]=(counts[a.element]||0)+1);
- Object.entries(counts).forEach(([s,n])=>{
-  const r=document.createElement("div");r.className="atom-row";
-  r.innerHTML=`<span><span class="atom-symbol">${s}</span> ${elementStyle[s]?.label||s}</span><strong>× ${n}</strong>`;
-  c.appendChild(r);
- });
-}
-
-function resizeCanvas(){
- const rect=canvas.getBoundingClientRect(),ratio=devicePixelRatio||1;
- canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);
-}
-
-function rotatePoint(p){
- let x=p.x,y=p.y,z=p.z;
- const cy=Math.cos(rotationY),sy=Math.sin(rotationY); let x1=x*cy-z*sy,z1=x*sy+z*cy;x=x1;z=z1;
- const cx=Math.cos(rotationX),sx=Math.sin(rotationX); let y1=y*cx-z*sx,z2=y*sx+z*cx;y=y1;z=z2;
- return{x,y,z};
-}
-
-function projectPoint(p,w,h){
- const distance=7,scale=(150*zoom)/(distance-p.z);
- return{x:w/2+p.x*scale,y:h/2-p.y*scale,scale,z:p.z};
-}
-
-function drawBond(a,b){
- const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len<1)return;
- ctx.save();ctx.translate(a.x,a.y);ctx.rotate(Math.atan2(dy,dx));ctx.fillStyle="#627b91";ctx.fillRect(0,-2.5,len,5);ctx.restore();
-}
-
-function drawAtom(atom,p){
- const style=elementStyle[atom.element]||elementStyle["?"]; const r=atom.radius*p.scale*.55,x=p.x,y=p.y;
- const g=ctx.createRadialGradient(x-r*.35,y-r*.35,r*.08,x,y,r);g.addColorStop(0,"#fff");g.addColorStop(.18,style.color);g.addColorStop(1,"#152231");
- ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="rgba(190,225,240,.45)";ctx.lineWidth=1;ctx.stroke();
- ctx.fillStyle="#eef8ff";ctx.font=Math.max(8,r*.72)+"px Segoe UI";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(atom.element,x,y);
-}
-
-function drawMolecule(m,cx,cy,mult=1,index=-1){
- const points=m.atoms.map(a=>{const r=rotatePoint(a),p=projectPoint(r,canvas.clientWidth,canvas.clientHeight);p.x=cx+(p.x-canvas.clientWidth/2)*mult;p.y=cy+(p.y-canvas.clientHeight/2)*mult;p.scale*=mult;return{atom:a,projected:p}});
- m.bondsData.forEach(b=>drawBond(points[b[0]].projected,points[b[1]].projected));
- points.sort((a,b)=>a.projected.z-b.projected.z).forEach(item=>drawAtom(item.atom,item.projected));
-}
-
-function updateStage(){resizeCanvas();drawStage()}
-
-function drawStage(){
- const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);
- if(!chamber.length){document.getElementById("canvasInfo").textContent="Add substances to the chamber";return}
- document.getElementById("canvasInfo").textContent=chamber.map(i=>`${i.molecule.formula} × ${i.quantity}`).join("   ·   ");
- const display=[];
- chamber.forEach(item=>{for(let i=0;i<Math.min(item.quantity,5);i++)display.push(item.molecule)});
- const max=display.length;
- display.forEach((m,i)=>{
-  const angle=i/Math.max(max,1)*Math.PI*2;
-  const radius=Math.min(w,h)*.25;
-  const x=w/2+Math.cos(angle)*radius,y=h/2+Math.sin(angle)*radius*.55;
-  drawMolecule(m,x,y,.58,i);
- });
- const particleCount=Math.min(45,max*5);
- for(let i=0;i<particleCount;i++){
-  const angle=simulationFrame*.001+i*1.37,r=80+(i%7)*27,x=w/2+Math.cos(angle)*r,y=h/2+Math.sin(angle)*r*.6;
-  ctx.beginPath();ctx.arc(x,y,1.4,0,Math.PI*2);ctx.fillStyle="rgba(85,185,220,.45)";ctx.fill();
- }
-}
-
-function animate(){simulationFrame++;if(!mouseDown&&chamber.length)rotationY+=.0025;drawStage();requestAnimationFrame(animate)}
-
-function changeZoom(delta){zoom=Math.max(.5,Math.min(2.2,zoom+delta));document.getElementById("zoomValue").textContent=Math.round(zoom*100)+"%";updateStage()}
-
-canvas.addEventListener("wheel",e=>{e.preventDefault();changeZoom(e.deltaY<0?.1:-.1)},{passive:false});
-canvas.addEventListener("mousedown",e=>{mouseDown=true;lastMouseX=e.clientX;lastMouseY=e.clientY});
-window.addEventListener("mouseup",()=>mouseDown=false);
-window.addEventListener("mousemove",e=>{
- if(!mouseDown)return;
- const dx=e.clientX-lastMouseX,dy=e.clientY-lastMouseY;rotationY+=dx*.01;rotationX=Math.max(-1.5,Math.min(1.5,rotationX+dy*.01));lastMouseX=e.clientX;lastMouseY=e.clientY;
-});
-
-let touchX=0,touchY=0;
-canvas.addEventListener("touchstart",e=>{if(e.touches.length===1){touchX=e.touches[0].clientX;touchY=e.touches[0].clientY}},{passive:true});
-canvas.addEventListener("touchmove",e=>{
- if(e.touches.length!==1)return;
- const x=e.touches[0].clientX,y=e.touches[0].clientY;rotationY+=(x-touchX)*.01;rotationX=Math.max(-1.5,Math.min(1.5,rotationX+(y-touchY)*.01));touchX=x;touchY=y;
-},{passive:true});
-
-async function detectComputeEngine(){
- const dot=document.getElementById("engineDot"),text=document.getElementById("engineText");
- if("gpu" in navigator){try{const adapter=await navigator.gpu.requestAdapter();if(adapter){computeEngine="WebGPU";dot.className="engine-dot gpu";text.textContent="WebGPU acceleration available";document.getElementById("engineResult").textContent="WebGPU";return}}catch(e){}}
- computeEngine="CPU";dot.className="engine-dot cpu";text.textContent="CPU fallback mode";document.getElementById("engineResult").textContent="CPU";
-}
-
-async function runSimulation(){
- if(simulationRunning)return;
- if(!chamber.length){alert("Experiment Chamber is empty.\\n\\nPlease add at least one substance.");return}
- simulationRunning=true;
- const button=document.getElementById("runButton");button.disabled=true;button.textContent="⏳ SIMULATION RUNNING...";
- const area=document.getElementById("progressArea"),bar=document.getElementById("progressBar"),pct=document.getElementById("progressPercent"),label=document.getElementById("progressLabel");
- area.style.display="block";bar.style.width="0%";
- const temperature=Number(document.getElementById("temperature").value)||25,pressure=Number(document.getElementById("pressure").value)||1,concentration=Number(document.getElementById("concentration").value)||1,simTime=Number(document.getElementById("simTime").value)||10;
- const total=chamber.reduce((s,i)=>s+i.quantity,0),complexity=chamber.reduce((s,i)=>s+i.quantity*i.molecule.atoms.length*Math.max(i.molecule.bonds||1,1),0);
- const base=Math.round(20000*Math.max(1,concentration)*Math.max(1,simTime/10)*Math.max(1,complexity/5)),iterations=Math.round(base*(computeEngine==="WebGPU"?8:1));
- const start=performance.now();let progress=0;
- while(progress<100){await new Promise(r=>setTimeout(r,computeEngine==="WebGPU"?24:50));progress+=computeEngine==="WebGPU"?5:3;if(progress>100)progress=100;bar.style.width=progress+"%";pct.textContent=progress+"%";label.textContent=computeEngine==="WebGPU"?"GPU computing...":"CPU computing..."}
- const elapsed=Math.max(1,performance.now()-start),speed=Math.round(iterations/(elapsed/1000));
- document.getElementById("resultTitle").textContent="Simulation complete";
- document.getElementById("resultDescription").textContent=`${chamber.length} substance(s) · ${total} units · ${temperature}°C · ${pressure} atm`;
- document.getElementById("particleResult").textContent=total.toLocaleString();
- document.getElementById("iterationResult").textContent=iterations.toLocaleString();
- document.getElementById("engineResult").textContent=computeEngine;
- document.getElementById("speedResult").textContent=speed.toLocaleString()+" / sec";
- document.getElementById("simulationStatus").textContent="Simulation complete";
- addLog("Simulation completed",chamber.map(i=>`${i.molecule.formula} × ${i.quantity}`).join(" + "));
- button.disabled=false;button.textContent="🔬 RUN SIMULATION";simulationRunning=false;
-}
-
-function resetExperiment(){
- chamber=[];rotationX=-.15;rotationY=.45;zoom=1;
- ["temperature","pressure","concentration","simTime"].forEach((id,i)=>document.getElementById(id).value=[25,1,1,10][i]);
- document.getElementById("zoomValue").textContent="100%";document.getElementById("resultTitle").textContent="Ready for experiment";
- document.getElementById("resultDescription").textContent="Add substances to the chamber and start a simulation.";
- ["particleResult","iterationResult","speedResult"].forEach(id=>document.getElementById(id).textContent="—");
- document.getElementById("progressArea").style.display="none";document.getElementById("simulationStatus").textContent="Chamber empty";
- renderChamber();updateStage();addLog("Experiment reset","Chamber cleared and conditions restored");
-}
-
-function addCustomMolecule(){
- const formula=prompt("輸入化學式，例如 CH₄：");if(!formula)return;
- const name=prompt("輸入物質名稱：","Custom Compound");
- const custom={id:"custom-"+Date.now(),name:name||"Custom Compound",formula,mass:0,type:"Custom",geometry:"Unknown",angle:"Unknown",polarity:"Unknown",bonds:0,atoms:[{element:"?",x:0,y:0,z:0,radius:1}],bondsData:[]};
- molecules.push(custom);renderMolecules();selectMolecule(custom);addLog("Custom substance created",formula);
-}
-
-function addLog(title,description){
- const log=document.getElementById("experimentLog"),empty=document.getElementById("emptyLog");if(empty)empty.remove();
- const item=document.createElement("div");item.className="log-item";
- item.innerHTML=`<div class="log-time">${new Date().toLocaleTimeString()}</div><div class="log-title">${title}</div><div style="margin-top:2px;color:#62768d;font-size:7px">${description}</div>`;
- log.prepend(item);
-}
-
-function clearLog(){document.getElementById("experimentLog").innerHTML='<div id="emptyLog" style="color:#62768d;font-size:8px">No experiments yet.</div>'}
-
-window.addEventListener("resize",resizeCanvas);
-renderMolecules();renderChamber();resizeCanvas();detectComputeEngine();animate();
+renderLibrary();renderChamber();detect();resize();loop();
 </script>
 </body>
 </html>

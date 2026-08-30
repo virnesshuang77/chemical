@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d17">
-<title>Virtual Chemistry Lab V0.3</title>
+<title>Virtual Chemistry Lab V0.4</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e8eef5}
 button,input,select{font:inherit}button{cursor:pointer}
@@ -95,13 +95,22 @@ button,input,select{font:inherit}button{cursor:pointer}
       <div class="box"><div class="pl">THEORETICAL PRODUCT</div><div id="productYield" class="big">—</div></div>
     </div>
     <div id="excessBox" class="formula-box" style="display:none;margin-top:7px"></div>
-  </div>
+    <div class="reaction" style="margin-top:7px">
+      <div class="reaction-title">THERMODYNAMICS</div>
+      <div class="calc">
+        <div class="box"><div class="pl">REACTION ENTHALPY ΔH</div><div id="enthalpy" class="big">—</div></div>
+        <div class="box"><div class="pl">ENERGY TYPE</div><div id="energyType" class="big">—</div></div>
+        <div class="box"><div class="pl">ENERGY SCALE</div><div id="energyScale" class="big">—</div></div>
+        <div class="box"><div class="pl">SYSTEM ENERGY</div><div id="systemEnergy" class="big">—</div></div>
+      </div>
+      <div id="thermoNote" class="reaction-note">V0.4 uses approximate standard reaction enthalpies for the supported educational reactions. It does not model heat transfer, kinetics, equilibrium, or actual temperature rise.</div>
+    </div>
  </div></div>
 
  <div class="panel"><div class="head"><b>EXPERIMENT LOG</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="clearLog()">Clear</button></div><div class="content"><div id="log" class="log"><div id="emptyLog" class="muted">No experiments yet.</div></div></div></div>
 </aside>
 </main>
-<footer class="footer">Virtual Chemistry Lab V0.3 · Browser-based educational reaction model · Not a substitute for laboratory validation</footer>
+<footer class="footer">Virtual Chemistry Lab V0.4 · Browser-based educational reaction model · Not a substitute for laboratory validation</footer>
 </div>
 
 <script>
@@ -172,33 +181,50 @@ function scientificCalc(){
   document.getElementById("calcPressure").textContent=P.toFixed(2)+" atm";
   return {T,P,n,V};
 }
+function setThermo(enthalpyPerReaction, type, extent, note){
+  const total=enthalpyPerReaction*extent;
+  document.getElementById("enthalpy").textContent=enthalpyPerReaction.toFixed(1)+" kJ";
+  document.getElementById("energyType").textContent=type;
+  document.getElementById("energyScale").textContent=(Math.abs(total)<0.05?0:total).toFixed(1)+" kJ";
+  document.getElementById("systemEnergy").textContent=(total<=0?"Released ":"Required ")+Math.abs(total).toFixed(1)+" kJ";
+  document.getElementById("thermoNote").textContent=note;
+}
+function clearThermo(){
+  ["enthalpy","energyType","energyScale","systemEnergy"].forEach(id=>document.getElementById(id).textContent="—");
+  document.getElementById("thermoNote").textContent="V0.4 uses approximate standard reaction enthalpies for the supported educational reactions. It does not model heat transfer, kinetics, equilibrium, or actual temperature rise.";
+}
 function stoichReport(){
   const h2=getItem("h2"),o2=getItem("o2"),n2=getItem("n2"),ch4=getItem("ch4");
   let line="No supported reaction detected.";
-  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run a V0.3 educational stoichiometric model.";
-  let limiting="—", product="—", excess="";
+  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run a V0.4 educational model.";
+  let limiting="—", product="—", excess="", extent=0;
 
   if(h2 && o2){
-    const h=h2.qty,o=o2.qty,extent=Math.min(h/2,o);
+    const h=h2.qty,o=o2.qty; extent=Math.min(h/2,o);
     const h2o=2*extent,remH=h-2*extent,remO=o-extent;
     limiting=(h/2<o)?"H₂":"O₂";
     line="2 H₂ + O₂ → 2 H₂O"; product=`H₂O ${h2o.toFixed(3)} mol`;
     note="Stoichiometric model: the balanced equation determines the limiting reagent. Actual reaction conditions and kinetics are not modeled.";
     excess=`Remaining after theoretical conversion: H₂ ${remH.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
+    setThermo(-571.6,"Exothermic",extent,"Approximate standard enthalpy for 2 mol H₂O(l) formed: −571.6 kJ. This is an educational thermodynamic reference, not a prediction of actual heat transfer or temperature rise.");
   } else if(n2 && h2){
-    const n=n2.qty,h=h2.qty,extent=Math.min(n,h/3);
+    const n=n2.qty,h=h2.qty; extent=Math.min(n,h/3);
     const nh3=2*extent,remN=n-extent,remH=h-3*extent;
     limiting=(n<h/3)?"N₂":"H₂";
     line="N₂ + 3 H₂ → 2 NH₃"; product=`NH₃ ${nh3.toFixed(3)} mol`;
     note="Stoichiometric model only. Catalyst, equilibrium, pressure effects and kinetics are not calculated.";
     excess=`Remaining after theoretical conversion: N₂ ${remN.toFixed(3)} mol · H₂ ${remH.toFixed(3)} mol`;
+    setThermo(-92.2,"Exothermic",extent,"Approximate standard enthalpy for 2 mol NH₃(g) formed: −92.2 kJ. Real equilibrium and heat transfer are not modeled.");
   } else if(ch4 && o2){
-    const c=ch4.qty,o=o2.qty,extent=Math.min(c,o/2);
+    const c=ch4.qty,o=o2.qty; extent=Math.min(c,o/2);
     const co2=extent,h2o=2*extent,remC=c-extent,remO=o-2*extent;
     limiting=(c<o/2)?"CH₄":"O₂";
     line="CH₄ + 2 O₂ → CO₂ + 2 H₂O"; product=`CO₂ ${co2.toFixed(3)} mol · H₂O ${h2o.toFixed(3)} mol`;
     note="Educational combustion stoichiometry only. Ignition, heat release, kinetics and safety conditions are not modeled.";
     excess=`Remaining after theoretical conversion: CH₄ ${remC.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
+    setThermo(-802.3,"Exothermic",extent,"Approximate standard enthalpy for CH₄(g) combustion to H₂O(l): −802.3 kJ per mol CH₄. Real combustion conditions are not modeled.");
+  } else {
+    clearThermo();
   }
 
   document.getElementById("reactionLine").textContent=line;
@@ -210,15 +236,15 @@ function stoichReport(){
     document.getElementById("productYield").textContent=product;
     box.style.display="block";box.textContent=excess||"No excess reactant.";
   }else{grid.style.display="none";box.style.display="none";}
-  return {line,limiting,product,excess};
+  return {line,limiting,product,excess,extent};
 }
-async function runScience(){
+function runScience(){
   if(!chamber.length){alert("請先加入至少一種物質。");return}
   const btn=document.getElementById("run");
   btn.disabled=true;btn.textContent="⏳ CALCULATING...";
   const calc=scientificCalc(),reaction=stoichReport();
   await new Promise(r=>setTimeout(r,700));
-  addLog("Scientific model completed",
+  addLog("Thermodynamic model completed",
     `Total chamber amount ${calc.n.toFixed(3)} mol · PV=nRT → ${calc.V.toFixed(3)} L · ${calc.T.toFixed(1)} °C · ${calc.P.toFixed(2)} atm · ${reaction.line}${reaction.limiting!=="—"?" · Limiting: "+reaction.limiting:""}`);
   btn.disabled=false;btn.textContent="🔬 RUN SCIENTIFIC MODEL";
 }
@@ -226,9 +252,10 @@ function resetAll(){
   chamber=[];selected=null;renderChamber();
   ["volume","moles","calcTemp","calcPressure"].forEach(id=>document.getElementById(id).textContent="—");
   document.getElementById("reactionLine").textContent="Add supported reactants to the chamber.";
-  document.getElementById("reactionNote").textContent="V0.3 performs educational stoichiometric checks, identifies limiting reagents, calculates theoretical products, and shows excess reactants. It does not predict arbitrary chemistry, kinetics, or reaction safety.";
+  document.getElementById("reactionNote").textContent="V0.4 performs educational stoichiometric and thermodynamic checks. It does not predict arbitrary chemistry, kinetics, equilibrium, heat transfer, or reaction safety.";
   document.getElementById("stoichGrid").style.display="none";
   document.getElementById("excessBox").style.display="none";
+  clearThermo();
   document.getElementById("stageStatus").textContent="Chamber empty";draw();addLog("Experiment reset","Conditions and chamber reset");
 }
 function addLog(t,d){const l=document.getElementById("log"),e=document.getElementById("emptyLog");if(e)e.remove();const x=document.createElement("div");x.className="logitem";x.innerHTML=`<div class="time">${new Date().toLocaleTimeString()}</div><div class="ltitle">${t}</div><div class="ldesc">${d}</div>`;l.prepend(x)}

@@ -31,13 +31,19 @@ input {
     font: inherit;
 }
 
+button {
+    user-select: none;
+}
+
 .app {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* HEADER */
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header {
     height: 68px;
@@ -114,15 +120,20 @@ input {
     box-shadow: 0 0 9px rgba(232,183,93,0.7);
 }
 
-/* MAIN */
+/* =========================================================
+   MAIN
+========================================================= */
 
 .main {
     flex: 1;
     display: grid;
-    grid-template-columns: 270px minmax(400px, 1fr) 330px;
+    grid-template-columns:
+        280px
+        minmax(420px, 1fr)
+        340px;
     gap: 14px;
     padding: 14px;
-    max-width: 1700px;
+    max-width: 1750px;
     width: 100%;
     margin: 0 auto;
 }
@@ -162,7 +173,9 @@ input {
     margin: 4px 0 8px;
 }
 
-/* BUTTONS */
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .btn {
     border: 1px solid #30445e;
@@ -173,19 +186,44 @@ input {
     font-size: 10px;
     font-weight: 700;
     cursor: pointer;
+    transition: 0.15s ease;
 }
 
 .btn:hover {
     border-color: #4c779b;
+    transform: translateY(-1px);
 }
 
-/* MOLECULE LIST */
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn.primary {
+    border-color: #2eaa84;
+    background: linear-gradient(180deg, #1d8d70, #146951);
+    color: white;
+}
+
+/* =========================================================
+   LEFT SIDE
+========================================================= */
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 720px;
+}
+
+.library {
+    padding: 13px;
+    border-bottom: 1px solid #223149;
+}
 
 .molecule-list {
     display: flex;
     flex-direction: column;
     gap: 7px;
-    max-height: 620px;
+    max-height: 315px;
     overflow-y: auto;
 }
 
@@ -194,18 +232,12 @@ input {
     border-radius: 8px;
     background: #0d1726;
     padding: 10px;
-    cursor: pointer;
     transition: 0.16s ease;
 }
 
 .molecule-card:hover {
     border-color: #3979a7;
     transform: translateY(-1px);
-}
-
-.molecule-card.selected {
-    border-color: #3ec49a;
-    background: linear-gradient(135deg, #10251f, #0d1827);
 }
 
 .molecule-top {
@@ -215,7 +247,7 @@ input {
 }
 
 .molecule-name {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
 }
 
@@ -231,15 +263,195 @@ input {
     display: flex;
     justify-content: space-between;
     color: #74879c;
-    font-size: 9px;
+    font-size: 8px;
 }
 
-/* SIMULATION */
+.add-molecule-button {
+    margin-top: 8px;
+    width: 100%;
+    height: 29px;
+    border-radius: 6px;
+    border: 1px solid #2b4e61;
+    background: #0d1b29;
+    color: #6fd8b7;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.add-molecule-button:hover {
+    background: #10283a;
+    border-color: #3b8d91;
+}
+
+/* =========================================================
+   EXPERIMENT CHAMBER
+========================================================= */
+
+.chamber {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.chamber-header {
+    padding: 12px 13px 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chamber-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #b7c7d8;
+    letter-spacing: 0.5px;
+}
+
+.chamber-count {
+    font-size: 9px;
+    color: #63778f;
+}
+
+.chamber-list {
+    padding: 0 13px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    overflow-y: auto;
+    max-height: 270px;
+}
+
+.empty-chamber {
+    padding: 25px 10px;
+    text-align: center;
+    color: #596e86;
+    font-size: 9px;
+    border: 1px dashed #263850;
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+.chamber-item {
+    border: 1px solid #263750;
+    background: #0c1725;
+    border-radius: 8px;
+    padding: 9px;
+}
+
+.chamber-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chamber-name {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.chamber-formula {
+    font-family: Consolas, monospace;
+    color: #54d4aa;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.quantity-button {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid #30445e;
+    background: #111f31;
+    color: #b8c8d7;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.quantity-button:hover {
+    border-color: #4b7997;
+}
+
+.quantity-value {
+    flex: 1;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #263750;
+    border-radius: 5px;
+    background: #09131f;
+    font-family: Consolas, monospace;
+    color: #e2edf5;
+    font-size: 10px;
+}
+
+.quantity-unit {
+    font-size: 8px;
+    color: #61758b;
+    width: 45px;
+}
+
+.remove-button {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid #4b3037;
+    background: #201319;
+    color: #c77d88;
+    cursor: pointer;
+}
+
+.remove-button:hover {
+    border-color: #9d505f;
+}
+
+.chamber-footer {
+    margin-top: auto;
+    padding: 10px 13px 13px;
+    border-top: 1px solid #1e2d42;
+}
+
+.chamber-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #657990;
+    margin-bottom: 8px;
+}
+
+.clear-chamber {
+    width: 100%;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #33445a;
+    background: #0d1827;
+    color: #8295aa;
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.clear-chamber:hover {
+    border-color: #66788e;
+    color: #b2c0ce;
+}
+
+/* =========================================================
+   CENTER SIMULATION
+========================================================= */
 
 .simulation-panel {
     display: flex;
     flex-direction: column;
-    min-height: 700px;
+    min-height: 720px;
 }
 
 .simulation-stage {
@@ -281,9 +493,32 @@ input {
     border: 1px solid #2b405a;
     border-radius: 6px;
     background: rgba(7,13,23,0.72);
-    font-size: 10px;
+    font-size: 9px;
     color: #91a5ba;
     z-index: 2;
+}
+
+.camera-info {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 8px;
+    color: #637991;
+    background: rgba(7,13,23,0.6);
+    padding: 6px 8px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.canvas-info {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    text-align: center;
+    color: #536a82;
+    font-size: 9px;
+    pointer-events: none;
 }
 
 .molecule-canvas {
@@ -298,20 +533,9 @@ input {
     cursor: grabbing;
 }
 
-/* CAMERA INFO */
-
-.camera-info {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 9px;
-    color: #637991;
-    background: rgba(7,13,23,0.6);
-    padding: 6px 8px;
-    border-radius: 6px;
-}
-
-/* SIMULATION FOOTER */
+/* =========================================================
+   CONTROLS
+========================================================= */
 
 .simulation-footer {
     border-top: 1px solid #223149;
@@ -335,7 +559,7 @@ input {
 
 .control label {
     display: block;
-    font-size: 9px;
+    font-size: 8px;
     color: #74879e;
     margin-bottom: 5px;
 }
@@ -352,7 +576,7 @@ input {
 
 .control-unit {
     color: #63758b;
-    font-size: 9px;
+    font-size: 8px;
 }
 
 .run-row {
@@ -372,6 +596,10 @@ input {
     cursor: pointer;
 }
 
+.run-button:hover {
+    filter: brightness(1.08);
+}
+
 .run-button:disabled {
     opacity: 0.55;
     cursor: wait;
@@ -386,7 +614,9 @@ input {
     cursor: pointer;
 }
 
-/* RIGHT */
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
 
 .right-panel {
     display: flex;
@@ -407,7 +637,9 @@ input {
     padding: 13px;
 }
 
-/* INSPECTOR */
+/* =========================================================
+   INSPECTOR
+========================================================= */
 
 .inspector-title {
     font-size: 17px;
@@ -423,7 +655,7 @@ input {
 
 .inspector-type {
     color: #71869d;
-    font-size: 10px;
+    font-size: 9px;
     margin-top: 3px;
 }
 
@@ -448,11 +680,13 @@ input {
 
 .property-value {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
 }
 
-/* ATOMS */
+/* =========================================================
+   ATOMS
+========================================================= */
 
 .atom-list {
     display: flex;
@@ -467,7 +701,7 @@ input {
     border-radius: 6px;
     background: #0c1726;
     border: 1px solid #223149;
-    font-size: 10px;
+    font-size: 9px;
 }
 
 .atom-symbol {
@@ -476,7 +710,9 @@ input {
     font-weight: 800;
 }
 
-/* RESULT */
+/* =========================================================
+   RESULT
+========================================================= */
 
 .result-main {
     font-size: 13px;
@@ -515,8 +751,6 @@ input {
     font-weight: 800;
 }
 
-/* PROGRESS */
-
 .progress-area {
     display: none;
     margin-top: 12px;
@@ -540,15 +774,28 @@ input {
 .progress-text {
     display: flex;
     justify-content: space-between;
-    font-size: 9px;
+    font-size: 8px;
     color: #71859a;
     margin-top: 4px;
 }
 
-/* LOG */
+.warning {
+    margin-top: 10px;
+    padding: 9px;
+    border: 1px solid #554829;
+    border-radius: 7px;
+    background: rgba(92,73,27,0.13);
+    color: #bda96b;
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   LOG
+========================================================= */
 
 .log {
-    max-height: 190px;
+    max-height: 180px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -563,55 +810,49 @@ input {
 }
 
 .log-time {
-    font-size: 8px;
+    font-size: 7px;
     color: #60748b;
     margin-bottom: 3px;
 }
 
 .log-title {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
 }
 
-/* WARNING */
-
-.warning {
-    margin-top: 10px;
-    padding: 9px;
-    border: 1px solid #554829;
-    border-radius: 7px;
-    background: rgba(92,73,27,0.13);
-    color: #bda96b;
-    font-size: 9px;
-    line-height: 1.5;
-}
-
-/* FOOTER */
+/* =========================================================
+   FOOTER
+========================================================= */
 
 .footer {
     padding: 10px 18px;
     border-top: 1px solid #1d2a3d;
     color: #566a81;
     text-align: center;
-    font-size: 9px;
+    font-size: 8px;
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-@media (max-width: 1200px) {
+@media (max-width: 1250px) {
 
     .main {
-        grid-template-columns: 240px minmax(350px, 1fr);
+        grid-template-columns:
+            250px
+            minmax(350px, 1fr);
     }
 
     .right-panel {
         grid-column: 1 / -1;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 850px) {
 
     .header {
         padding: 0 14px;
@@ -641,7 +882,16 @@ input {
     }
 
     .controls-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .molecule-list {
+        max-height: 400px;
+    }
+
+    .chamber-list {
+        max-height: 300px;
     }
 }
 
@@ -652,7 +902,7 @@ input {
     }
 
     .engine-status {
-        font-size: 9px;
+        font-size: 8px;
         padding: 6px 8px;
     }
 
@@ -661,7 +911,8 @@ input {
     }
 
     .controls-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
     }
 
     .run-row {
@@ -672,7 +923,12 @@ input {
         width: 100%;
         height: 38px;
     }
+
+    .camera-info {
+        display: none;
+    }
 }
+
 </style>
 </head>
 
@@ -680,11 +936,17 @@ input {
 
 <div class="app">
 
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
 <header class="header">
 
     <div class="logo-area">
 
-        <div class="logo">🧪</div>
+        <div class="logo">
+            🧪
+        </div>
 
         <div class="logo-text">
 
@@ -716,34 +978,49 @@ input {
 </header>
 
 
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
 <main class="main">
 
 
-<!-- MOLECULES -->
+<!-- =======================================================
+     LEFT — LIBRARY + CHAMBER
+======================================================= -->
 
 <section class="panel left-panel">
 
-    <div class="panel-header">
+    <!-- LIBRARY -->
 
-        <div class="panel-title">
-            MOLECULES
+    <div class="library">
+
+        <div class="panel-header"
+             style="
+                padding:0 0 10px;
+                border:0;
+                background:transparent;
+             ">
+
+            <div class="panel-title">
+                MOLECULE LIBRARY
+            </div>
+
+            <button
+                class="btn"
+                onclick="addCustomMolecule()">
+
+                + Custom
+
+            </button>
+
         </div>
 
-        <button
-            class="btn"
-            onclick="addCustomMolecule()">
-
-            + Add
-
-        </button>
-
-    </div>
-
-    <div class="panel-content">
 
         <div class="section-label">
             Available substances
         </div>
+
 
         <div
             id="moleculeList"
@@ -752,10 +1029,80 @@ input {
 
     </div>
 
+
+    <!-- CHAMBER -->
+
+    <div class="chamber">
+
+        <div class="chamber-header">
+
+            <div class="chamber-title">
+                EXPERIMENT CHAMBER
+            </div>
+
+            <div
+                id="chamberCount"
+                class="chamber-count">
+
+                0 substances
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="chamberList"
+            class="chamber-list">
+
+            <div class="empty-chamber">
+
+                Your chamber is empty.<br>
+
+                Add substances from the library
+                above to begin an experiment.
+
+            </div>
+
+        </div>
+
+
+        <div class="chamber-footer">
+
+            <div class="chamber-summary">
+
+                <span>
+                    Total particles
+                </span>
+
+                <strong
+                    id="totalParticles">
+
+                    0
+
+                </strong>
+
+            </div>
+
+
+            <button
+                class="clear-chamber"
+                onclick="clearChamber()">
+
+                Clear Chamber
+
+            </button>
+
+        </div>
+
+    </div>
+
 </section>
 
 
-<!-- SIMULATION -->
+<!-- =======================================================
+     CENTER — MOLECULAR VIEW
+======================================================= -->
 
 <section class="panel simulation-panel">
 
@@ -772,7 +1119,7 @@ input {
                 color:#71869c;
             ">
 
-            Select a molecule
+            Chamber empty
 
         </div>
 
@@ -783,29 +1130,40 @@ input {
 
         <div class="grid"></div>
 
+
         <div class="stage-label">
-            3D MOLECULE VIEW
+            3D MOLECULAR ENVIRONMENT
         </div>
 
-        <div
-            id="cameraInfo"
-            class="camera-info">
 
+        <div class="camera-info">
             Drag to rotate
-
         </div>
+
 
         <canvas
             id="moleculeCanvas"
             class="molecule-canvas">
         </canvas>
 
+
+        <div
+            id="canvasInfo"
+            class="canvas-info">
+
+            Add substances to the chamber
+
+        </div>
+
     </div>
 
+
+    <!-- CONTROLS -->
 
     <div class="simulation-footer">
 
         <div class="controls-row">
+
 
             <div class="control">
 
@@ -823,6 +1181,7 @@ input {
                 </span>
 
             </div>
+
 
             <div class="control">
 
@@ -842,6 +1201,7 @@ input {
 
             </div>
 
+
             <div class="control">
 
                 <label>
@@ -859,6 +1219,7 @@ input {
                 </span>
 
             </div>
+
 
             <div class="control">
 
@@ -891,9 +1252,10 @@ input {
 
             </button>
 
+
             <button
                 class="reset-button"
-                onclick="resetSimulation()">
+                onclick="resetExperiment()">
 
                 Reset
 
@@ -906,7 +1268,9 @@ input {
 </section>
 
 
-<!-- RIGHT -->
+<!-- =======================================================
+     RIGHT
+======================================================= -->
 
 <aside class="right-panel">
 
@@ -934,6 +1298,7 @@ input {
 
         </div>
 
+
         <div
             id="inspectorFormula"
             class="inspector-formula">
@@ -942,16 +1307,19 @@ input {
 
         </div>
 
+
         <div
             id="inspectorType"
             class="inspector-type">
 
-            Select a molecule from the left.
+            Click a molecule in the library
+            to inspect it.
 
         </div>
 
 
         <div class="property-grid">
+
 
             <div class="property">
 
@@ -1061,7 +1429,7 @@ input {
 </div>
 
 
-<!-- ATOMS -->
+<!-- ATOMIC COMPOSITION -->
 
 <div class="info-panel">
 
@@ -1073,6 +1441,7 @@ input {
 
     </div>
 
+
     <div class="info-content">
 
         <div
@@ -1082,7 +1451,7 @@ input {
             <div
                 style="
                     color:#62768d;
-                    font-size:10px;
+                    font-size:9px;
                 ">
 
                 Select a molecule.
@@ -1108,7 +1477,9 @@ input {
 
     </div>
 
+
     <div class="info-content">
+
 
         <div
             id="resultTitle"
@@ -1118,15 +1489,19 @@ input {
 
         </div>
 
+
         <div
             id="resultDescription"
             class="result-description">
 
-            Select a molecule and start a simulation.
+            Add substances to the chamber
+            and start a simulation.
 
         </div>
 
+
         <div class="result-grid">
+
 
             <div class="result-box">
 
@@ -1144,6 +1519,7 @@ input {
 
             </div>
 
+
             <div class="result-box">
 
                 <div class="result-label">
@@ -1160,6 +1536,7 @@ input {
 
             </div>
 
+
             <div class="result-box">
 
                 <div class="result-label">
@@ -1175,6 +1552,7 @@ input {
                 </div>
 
             </div>
+
 
             <div class="result-box">
 
@@ -1199,6 +1577,7 @@ input {
             id="progressArea"
             class="progress-area">
 
+
             <div class="progress">
 
                 <div
@@ -1208,10 +1587,11 @@ input {
 
             </div>
 
+
             <div class="progress-text">
 
                 <span id="progressLabel">
-                    Simulating...
+                    Waiting...
                 </span>
 
                 <span id="progressPercent">
@@ -1225,11 +1605,10 @@ input {
 
         <div class="warning">
 
-            ⚠ V0.1 is an educational molecular
-            visualization and simulation prototype.
-            Molecular geometry is based on simplified
-            educational data. Simulation results are
-            not experimental proof.
+            ⚠ V0.1.1 is an educational /
+            exploratory simulation prototype.
+            The current simulation engine does not
+            predict real chemical reactions.
 
         </div>
 
@@ -1238,7 +1617,7 @@ input {
 </div>
 
 
-<!-- LOG -->
+<!-- EXPERIMENT LOG -->
 
 <div class="info-panel">
 
@@ -1247,6 +1626,7 @@ input {
         <div class="panel-title">
             EXPERIMENT LOG
         </div>
+
 
         <button
             class="btn"
@@ -1258,6 +1638,7 @@ input {
 
     </div>
 
+
     <div class="info-content">
 
         <div
@@ -1268,7 +1649,7 @@ input {
                 id="emptyLog"
                 style="
                     color:#62768d;
-                    font-size:10px;
+                    font-size:9px;
                 ">
 
                 No experiments yet.
@@ -1289,8 +1670,8 @@ input {
 
 <footer class="footer">
 
-    Virtual Chemistry Lab V0.1 ·
-    Molecular Explorer
+    Virtual Chemistry Lab V0.1.1 ·
+    Molecule Library + Experiment Chamber
 
 </footer>
 
@@ -1307,21 +1688,13 @@ const molecules = [
 
     {
         id: "water",
-
         name: "Water",
-
         formula: "H₂O",
-
         mass: 18.015,
-
         type: "Solvent",
-
         geometry: "Bent",
-
         angle: "104.5°",
-
         polarity: "Polar",
-
         bonds: 2,
 
         atoms: [
@@ -1357,21 +1730,13 @@ const molecules = [
 
     {
         id: "carbon-dioxide",
-
         name: "Carbon Dioxide",
-
         formula: "CO₂",
-
         mass: 44.010,
-
         type: "Gas",
-
         geometry: "Linear",
-
         angle: "180°",
-
         polarity: "Non-polar",
-
         bonds: 2,
 
         atoms: [
@@ -1407,21 +1772,13 @@ const molecules = [
 
     {
         id: "oxygen",
-
         name: "Oxygen",
-
         formula: "O₂",
-
         mass: 31.998,
-
         type: "Gas",
-
         geometry: "Linear",
-
         angle: "180°",
-
         polarity: "Non-polar",
-
         bonds: 1,
 
         atoms: [
@@ -1449,21 +1806,13 @@ const molecules = [
 
     {
         id: "hydrogen",
-
         name: "Hydrogen",
-
         formula: "H₂",
-
         mass: 2.016,
-
         type: "Gas",
-
         geometry: "Linear",
-
         angle: "180°",
-
         polarity: "Non-polar",
-
         bonds: 1,
 
         atoms: [
@@ -1491,21 +1840,13 @@ const molecules = [
 
     {
         id: "sodium-chloride",
-
         name: "Sodium Chloride",
-
         formula: "NaCl",
-
         mass: 58.440,
-
         type: "Ionic compound",
-
         geometry: "Diatomic",
-
         angle: "—",
-
         polarity: "Ionic",
-
         bonds: 1,
 
         atoms: [
@@ -1533,21 +1874,13 @@ const molecules = [
 
     {
         id: "ethanol",
-
         name: "Ethanol",
-
         formula: "C₂H₆O",
-
         mass: 46.069,
-
         type: "Organic",
-
         geometry: "Tetrahedral / bent",
-
         angle: "≈109.5°",
-
         polarity: "Polar",
-
         bonds: 8,
 
         atoms: [
@@ -1637,6 +1970,8 @@ const molecules = [
 
 let selectedMolecule = null;
 
+let chamber = [];
+
 let computeEngine = "CPU";
 
 let simulationRunning = false;
@@ -1644,8 +1979,6 @@ let simulationRunning = false;
 let rotationX = -0.15;
 
 let rotationY = 0.45;
-
-let autoRotate = true;
 
 let simulationFrame = 0;
 
@@ -1657,7 +1990,7 @@ let lastMouseY = 0;
 
 
 /* =========================================================
-   ELEMENT COLORS / DISPLAY
+   ELEMENT DISPLAY
 ========================================================= */
 
 const elementStyle = {
@@ -1706,7 +2039,7 @@ const ctx =
 
 
 /* =========================================================
-   MOLECULE LIST
+   LIBRARY
 ========================================================= */
 
 function renderMolecules() {
@@ -1732,32 +2065,17 @@ function renderMolecules() {
                 "molecule-card";
 
 
-            if (
-                selectedMolecule &&
-                selectedMolecule.id ===
-                molecule.id
-            ) {
-
-                card.classList.add(
-                    "selected"
-                );
-
-            }
-
-
             card.innerHTML = `
 
                 <div class="molecule-top">
 
                     <div class="molecule-name">
-
                         ${molecule.name}
-
                     </div>
 
                     <div
                         style="
-                            font-size:9px;
+                            font-size:8px;
                             color:#64788f;
                         ">
 
@@ -1788,16 +2106,42 @@ function renderMolecules() {
 
                 </div>
 
+
+                <button
+                    class="add-molecule-button">
+
+                    + Add to Chamber
+
+                </button>
+
             `;
 
 
-            card.onclick = () => {
+            card.addEventListener(
+                "click",
+                event => {
 
-                selectMolecule(
-                    molecule
-                );
+                    if (
+                        event.target.closest(
+                            ".add-molecule-button"
+                        )
+                    ) {
 
-            };
+                        addToChamber(
+                            molecule
+                        );
+
+                        return;
+
+                    }
+
+
+                    selectMolecule(
+                        molecule
+                    );
+
+                }
+            );
 
 
             list.appendChild(
@@ -1829,8 +2173,6 @@ function selectMolecule(
         0.45;
 
 
-    renderMolecules();
-
     updateInspector();
 
     updateStage();
@@ -1845,94 +2187,462 @@ function selectMolecule(
 
 
 /* =========================================================
-   INSPECTOR
+   ADD TO CHAMBER
 ========================================================= */
 
-function updateInspector() {
+function addToChamber(
+    molecule
+) {
 
-    const title =
-        document.getElementById(
-            "inspectorTitle"
-        );
-
-    const formula =
-        document.getElementById(
-            "inspectorFormula"
-        );
-
-    const type =
-        document.getElementById(
-            "inspectorType"
+    const existing =
+        chamber.find(
+            item =>
+                item.id ===
+                molecule.id
         );
 
 
     if (
-        !selectedMolecule
+        existing
     ) {
 
-        title.textContent =
-            "No molecule selected";
+        existing.quantity += 1;
 
-        formula.textContent =
-            "—";
+    } else {
 
-        type.textContent =
-            "Select a molecule from the left.";
+        chamber.push({
+
+            id:
+                molecule.id,
+
+            molecule:
+                molecule,
+
+            quantity:
+                1
+
+        });
+
+    }
+
+
+    selectMolecule(
+        molecule
+    );
+
+
+    renderChamber();
+
+    updateStage();
+
+
+    addLog(
+        "Substance added to chamber",
+        `${molecule.formula} × 1`
+    );
+
+}
+
+
+/* =========================================================
+   CHANGE QUANTITY
+========================================================= */
+
+function changeQuantity(
+    id,
+    delta
+) {
+
+    const item =
+        chamber.find(
+            x =>
+                x.id === id
+        );
+
+
+    if (
+        !item
+    ) {
+        return;
+    }
+
+
+    item.quantity +=
+        delta;
+
+
+    if (
+        item.quantity <= 0
+    ) {
+
+        chamber =
+            chamber.filter(
+                x =>
+                    x.id !== id
+            );
+
+    }
+
+
+    renderChamber();
+
+    updateStage();
+
+}
+
+
+/* =========================================================
+   REMOVE FROM CHAMBER
+========================================================= */
+
+function removeFromChamber(
+    id
+) {
+
+    const item =
+        chamber.find(
+            x =>
+                x.id === id
+        );
+
+
+    chamber =
+        chamber.filter(
+            x =>
+                x.id !== id
+        );
+
+
+    renderChamber();
+
+    updateStage();
+
+
+    if (
+        item
+    ) {
+
+        addLog(
+            "Substance removed",
+            item.molecule.formula
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER CHAMBER
+========================================================= */
+
+function renderChamber() {
+
+    const container =
+        document.getElementById(
+            "chamberList"
+        );
+
+
+    const countLabel =
+        document.getElementById(
+            "chamberCount"
+        );
+
+
+    const totalParticles =
+        document.getElementById(
+            "totalParticles"
+        );
+
+
+    if (
+        chamber.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-chamber">
+
+                Your chamber is empty.<br>
+
+                Add substances from the library
+                above to begin an experiment.
+
+            </div>
+
+        `;
+
+
+        countLabel.textContent =
+            "0 substances";
+
+
+        totalParticles.textContent =
+            "0";
+
 
         return;
 
     }
 
 
-    title.textContent =
-        selectedMolecule.name;
+    container.innerHTML = "";
 
 
-    formula.textContent =
-        selectedMolecule.formula;
+    let total =
+        0;
 
 
-    type.textContent =
-        selectedMolecule.type;
+    chamber.forEach(
+        item => {
+
+            total +=
+                item.quantity;
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "chamber-item";
+
+
+            row.innerHTML = `
+
+                <div class="chamber-item-top">
+
+                    <div>
+
+                        <div class="chamber-name">
+
+                            ${item.molecule.name}
+
+                        </div>
+
+                        <div class="chamber-formula">
+
+                            ${item.molecule.formula}
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="remove-button"
+                        onclick="
+                            removeFromChamber(
+                                '${item.id}'
+                            )
+                        ">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+
+                <div class="quantity-row">
+
+                    <button
+                        class="quantity-button"
+                        onclick="
+                            changeQuantity(
+                                '${item.id}',
+                                -1
+                            )
+                        ">
+
+                        −
+
+                    </button>
+
+
+                    <div class="quantity-value">
+
+                        ${item.quantity}
+
+                    </div>
+
+
+                    <button
+                        class="quantity-button"
+                        onclick="
+                            changeQuantity(
+                                '${item.id}',
+                                1
+                            )
+                        ">
+
+                        +
+
+                    </button>
+
+
+                    <div class="quantity-unit">
+
+                        units
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    countLabel.textContent =
+        chamber.length +
+        (
+            chamber.length === 1
+            ? " substance"
+            : " substances"
+        );
+
+
+    totalParticles.textContent =
+        total.toLocaleString();
+
+}
+
+
+/* =========================================================
+   CLEAR CHAMBER
+========================================================= */
+
+function clearChamber() {
+
+    if (
+        chamber.length === 0
+    ) {
+        return;
+    }
+
+
+    chamber = [];
+
+
+    renderChamber();
+
+    updateStage();
+
+
+    document.getElementById(
+        "simulationStatus"
+    ).textContent =
+        "Chamber empty";
+
+
+    addLog(
+        "Chamber cleared",
+        "All substances removed"
+    );
+
+}
+
+
+/* =========================================================
+   INSPECTOR
+========================================================= */
+
+function updateInspector() {
+
+    if (
+        !selectedMolecule
+    ) {
+
+        document.getElementById(
+            "inspectorTitle"
+        ).textContent =
+            "No molecule selected";
+
+
+        document.getElementById(
+            "inspectorFormula"
+        ).textContent =
+            "—";
+
+
+        document.getElementById(
+            "inspectorType"
+        ).textContent =
+            "Click a molecule in the library to inspect it.";
+
+
+        return;
+
+    }
+
+
+    const m =
+        selectedMolecule;
+
+
+    document.getElementById(
+        "inspectorTitle"
+    ).textContent =
+        m.name;
+
+
+    document.getElementById(
+        "inspectorFormula"
+    ).textContent =
+        m.formula;
+
+
+    document.getElementById(
+        "inspectorType"
+    ).textContent =
+        m.type;
 
 
     document.getElementById(
         "propertyMass"
     ).textContent =
-        selectedMolecule.mass.toFixed(
-            3
-        ) +
+        m.mass.toFixed(3) +
         " g/mol";
 
 
     document.getElementById(
         "propertyAtoms"
     ).textContent =
-        selectedMolecule.atoms.length;
+        m.atoms.length;
 
 
     document.getElementById(
         "propertyBonds"
     ).textContent =
-        selectedMolecule.bonds;
+        m.bonds;
 
 
     document.getElementById(
         "propertyGeometry"
     ).textContent =
-        selectedMolecule.geometry;
+        m.geometry;
 
 
     document.getElementById(
         "propertyAngle"
     ).textContent =
-        selectedMolecule.angle;
+        m.angle;
 
 
     document.getElementById(
         "propertyPolarity"
     ).textContent =
-        selectedMolecule.polarity;
+        m.polarity;
 
 
     renderAtomList();
@@ -1998,8 +2708,7 @@ function renderAtomList() {
                     symbol
                 ] ||
                 {
-                    label: symbol,
-                    color: "#54d4aa"
+                    label: symbol
                 };
 
 
@@ -2097,8 +2806,6 @@ function rotatePoint(
         point.z;
 
 
-    /* Y rotation */
-
     const cosY =
         Math.cos(
             rotationY
@@ -2126,8 +2833,6 @@ function rotatePoint(
     z =
         z1;
 
-
-    /* X rotation */
 
     const cosX =
         Math.cos(
@@ -2167,7 +2872,7 @@ function rotatePoint(
 
 
 /* =========================================================
-   PROJECT 3D → 2D
+   PROJECT
 ========================================================= */
 
 function projectPoint(
@@ -2211,7 +2916,7 @@ function projectPoint(
 
 
 /* =========================================================
-   DRAW BOND
+   BOND
 ========================================================= */
 
 function drawBond(
@@ -2261,35 +2966,8 @@ function drawBond(
     );
 
 
-    const gradient =
-        ctx.createLinearGradient(
-            0,
-            0,
-            length,
-            0
-        );
-
-
-    gradient.addColorStop(
-        0,
-        "#47627a"
-    );
-
-
-    gradient.addColorStop(
-        0.5,
-        "#8ca7bb"
-    );
-
-
-    gradient.addColorStop(
-        1,
-        "#47627a"
-    );
-
-
     ctx.fillStyle =
-        gradient;
+        "#627b91";
 
 
     ctx.fillRect(
@@ -2306,7 +2984,7 @@ function drawBond(
 
 
 /* =========================================================
-   DRAW ATOM
+   ATOM
 ========================================================= */
 
 function drawAtom(
@@ -2395,8 +3073,6 @@ function drawAtom(
     ctx.stroke();
 
 
-    /* atom label */
-
     ctx.fillStyle =
         "#eef8ff";
 
@@ -2427,10 +3103,123 @@ function drawAtom(
 
 
 /* =========================================================
-   DRAW MOLECULE
+   DRAW SINGLE MOLECULE
 ========================================================= */
 
-function drawMolecule() {
+function drawMolecule(
+    molecule,
+    centerX,
+    centerY,
+    scaleMultiplier = 1
+) {
+
+    const points =
+        molecule.atoms.map(
+            atom => {
+
+                const rotated =
+                    rotatePoint(
+                        atom
+                    );
+
+
+                const projected =
+                    projectPoint(
+                        rotated,
+                        canvas.clientWidth,
+                        canvas.clientHeight
+                    );
+
+
+                projected.x =
+                    centerX +
+                    (
+                        projected.x -
+                        canvas.clientWidth / 2
+                    ) *
+                    scaleMultiplier;
+
+
+                projected.y =
+                    centerY +
+                    (
+                        projected.y -
+                        canvas.clientHeight / 2
+                    ) *
+                    scaleMultiplier;
+
+
+                projected.scale *=
+                    scaleMultiplier;
+
+
+                return {
+                    atom,
+                    projected
+                };
+
+            }
+        );
+
+
+    molecule.bondsData.forEach(
+        bond => {
+
+            const a =
+                points[
+                    bond[0]
+                ].projected;
+
+
+            const b =
+                points[
+                    bond[1]
+                ].projected;
+
+
+            drawBond(
+                a,
+                b
+            );
+
+        }
+    );
+
+
+    points
+        .sort(
+            (a,b) =>
+                a.projected.z -
+                b.projected.z
+        )
+        .forEach(
+            item => {
+
+                drawAtom(
+                    item.atom,
+                    item.projected
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   DRAW STAGE
+========================================================= */
+
+function updateStage() {
+
+    resizeCanvas();
+
+    drawStage();
+
+}
+
+
+function drawStage() {
 
     const width =
         canvas.clientWidth;
@@ -2448,132 +3237,190 @@ function drawMolecule() {
 
 
     if (
-        !selectedMolecule
+        chamber.length === 0
     ) {
 
-        ctx.fillStyle =
-            "#6f849b";
+        document.getElementById(
+            "canvasInfo"
+        ).textContent =
+            "Add substances to the chamber";
 
-        ctx.font =
-            "12px Segoe UI";
-
-        ctx.textAlign =
-            "center";
-
-        ctx.fillText(
-            "Select a molecule to inspect",
-            width / 2,
-            height / 2
-        );
 
         return;
 
     }
 
 
-    const points =
-        selectedMolecule.atoms.map(
-            atom => {
-
-                const rotated =
-                    rotatePoint(
-                        atom
-                    );
-
-
-                return {
-
-                    atom,
-
-                    projected:
-                        projectPoint(
-                            rotated,
-                            width,
-                            height
-                        )
-
-                };
-
-            }
-        );
+    document.getElementById(
+        "canvasInfo"
+    ).textContent =
+        chamber
+            .map(
+                item =>
+                    `${item.molecule.formula} × ${item.quantity}`
+            )
+            .join(
+                "   ·   "
+            );
 
 
-    /* Sort by depth */
+    /*
+     * 為了畫面不塞爆，
+     * V0.1.1 每種物質只顯示最多幾個
+     * 代表性分子。
+     */
 
-    const sorted =
-        [...points].sort(
-            (
-                a,
-                b
-            ) =>
-                a.projected.z -
-                b.projected.z
-        );
+    const displayMolecules = [];
 
 
-    /* Bonds first */
+    chamber.forEach(
+        item => {
 
-    selectedMolecule
-        .bondsData
-        .forEach(
-            bond => {
-
-                const a =
-                    points[
-                        bond[0]
-                    ]
-                    .projected;
+            const displayCount =
+                Math.min(
+                    item.quantity,
+                    5
+                );
 
 
-                const b =
-                    points[
-                        bond[1]
-                    ]
-                    .projected;
+            for (
+                let i = 0;
+                i < displayCount;
+                i++
+            ) {
 
-
-                drawBond(
-                    a,
-                    b
+                displayMolecules.push(
+                    item.molecule
                 );
 
             }
-        );
+
+        }
+    );
 
 
-    /* Atoms */
+    const max =
+        displayMolecules.length;
 
-    sorted.forEach(
-        item => {
 
-            drawAtom(
-                item.atom,
-                item.projected
+    displayMolecules.forEach(
+        (molecule, index) => {
+
+            const angle =
+                (
+                    index /
+                    Math.max(
+                        max,
+                        1
+                    )
+                ) *
+                Math.PI *
+                2;
+
+
+            const radius =
+                Math.min(
+                    width,
+                    height
+                ) *
+                0.25;
+
+
+            const x =
+                width / 2 +
+                Math.cos(
+                    angle
+                ) *
+                radius;
+
+
+            const y =
+                height / 2 +
+                Math.sin(
+                    angle
+                ) *
+                radius *
+                0.55;
+
+
+            drawMolecule(
+                molecule,
+                x,
+                y,
+                0.58
             );
 
         }
     );
 
 
-    /* center indicator */
+    /*
+     * Ambient particles
+     */
 
-    ctx.fillStyle =
-        "rgba(100,180,220,0.25)";
-
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-        width / 2,
-        height / 2,
-        3,
-        0,
-        Math.PI * 2
-    );
+    const particleCount =
+        Math.min(
+            45,
+            max * 5
+        );
 
 
-    ctx.fill();
+    for (
+        let i = 0;
+        i < particleCount;
+        i++
+    ) {
+
+        const angle =
+            simulationFrame *
+            0.001 +
+            i * 1.37;
+
+
+        const radius =
+            80 +
+            (
+                i % 7
+            ) *
+            27;
+
+
+        const x =
+            width / 2 +
+            Math.cos(
+                angle
+            ) *
+            radius;
+
+
+        const y =
+            height / 2 +
+            Math.sin(
+                angle
+            ) *
+            radius *
+            0.6;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            x,
+            y,
+            1.5,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fillStyle =
+            "rgba(85,185,220,0.45)";
+
+
+        ctx.fill();
+
+    }
 
 }
 
@@ -2588,17 +3435,17 @@ function animate() {
 
 
     if (
-        autoRotate &&
-        !mouseDown
+        !mouseDown &&
+        chamber.length > 0
     ) {
 
         rotationY +=
-            0.004;
+            0.003;
 
     }
 
 
-    drawMolecule();
+    drawStage();
 
 
     requestAnimationFrame(
@@ -2691,7 +3538,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   TOUCH ROTATION
+   TOUCH
 ========================================================= */
 
 let touchX = 0;
@@ -2741,18 +3588,30 @@ canvas.addEventListener(
             event.touches[0].clientY;
 
 
-        const dx =
-            x - touchX;
-
-        const dy =
-            y - touchY;
-
-
         rotationY +=
-            dx * 0.01;
+            (
+                x -
+                touchX
+            ) *
+            0.01;
+
 
         rotationX +=
-            dy * 0.01;
+            (
+                y -
+                touchY
+            ) *
+            0.01;
+
+
+        rotationX =
+            Math.max(
+                -1.5,
+                Math.min(
+                    1.5,
+                    rotationX
+                )
+            );
 
 
         touchX =
@@ -2778,6 +3637,7 @@ async function detectComputeEngine() {
         document.getElementById(
             "engineDot"
         );
+
 
     const text =
         document.getElementById(
@@ -2827,6 +3687,7 @@ async function detectComputeEngine() {
         ) {
 
             console.log(
+                "WebGPU detection:",
                 error
             );
 
@@ -2856,7 +3717,7 @@ async function detectComputeEngine() {
 
 
 /* =========================================================
-   SIMULATION
+   RUN SIMULATION
 ========================================================= */
 
 async function runSimulation() {
@@ -2869,11 +3730,11 @@ async function runSimulation() {
 
 
     if (
-        !selectedMolecule
+        chamber.length === 0
     ) {
 
         alert(
-            "請先選擇一個分子。"
+            "Experiment Chamber is empty.\n\nPlease add at least one substance."
         );
 
         return;
@@ -2963,14 +3824,38 @@ async function runSimulation() {
         );
 
 
+    const totalQuantity =
+        chamber.reduce(
+            (
+                sum,
+                item
+            ) =>
+                sum +
+                item.quantity,
+            0
+        );
+
+
     const complexity =
-        selectedMolecule.atoms.length *
-        selectedMolecule.bonds;
+        chamber.reduce(
+            (
+                sum,
+                item
+            ) =>
+                sum +
+                item.quantity *
+                item.molecule.atoms.length *
+                Math.max(
+                    item.molecule.bonds,
+                    1
+                ),
+            0
+        );
 
 
     const baseIterations =
         Math.round(
-            50000 *
+            20000 *
             Math.max(
                 1,
                 concentration
@@ -2981,7 +3866,7 @@ async function runSimulation() {
             ) *
             Math.max(
                 1,
-                complexity / 4
+                complexity / 5
             )
         );
 
@@ -3034,16 +3919,21 @@ async function runSimulation() {
         if (
             progress > 100
         ) {
-            progress = 100;
+
+            progress =
+                100;
+
         }
 
 
         progressBar.style.width =
-            progress + "%";
+            progress +
+            "%";
 
 
         progressPercent.textContent =
-            progress + "%";
+            progress +
+            "%";
 
 
         progressLabel.textContent =
@@ -3073,14 +3963,6 @@ async function runSimulation() {
         );
 
 
-    const particles =
-        Math.round(
-            1000 *
-            concentration *
-            selectedMolecule.atoms.length
-        );
-
-
     document.getElementById(
         "resultTitle"
     ).textContent =
@@ -3090,13 +3972,13 @@ async function runSimulation() {
     document.getElementById(
         "resultDescription"
     ).textContent =
-        `${selectedMolecule.name} simulated at ${temperature}°C, ${pressure} atm and ${concentration} mol/L.`;
+        `${chamber.length} substance(s) · ${totalQuantity} units · ${temperature}°C · ${pressure} atm`;
 
 
     document.getElementById(
         "particleResult"
     ).textContent =
-        particles.toLocaleString();
+        totalQuantity.toLocaleString();
 
 
     document.getElementById(
@@ -3126,7 +4008,14 @@ async function runSimulation() {
 
     addLog(
         "Simulation completed",
-        `${selectedMolecule.formula} · ${temperature}°C · ${pressure} atm`
+        chamber
+            .map(
+                item =>
+                    `${item.molecule.formula} × ${item.quantity}`
+            )
+            .join(
+                " + "
+            )
     );
 
 
@@ -3145,13 +4034,12 @@ async function runSimulation() {
 
 
 /* =========================================================
-   RESET
+   RESET EXPERIMENT
 ========================================================= */
 
-function resetSimulation() {
+function resetExperiment() {
 
-    selectedMolecule =
-        null;
+    chamber = [];
 
 
     rotationX =
@@ -3194,7 +4082,7 @@ function resetSimulation() {
     document.getElementById(
         "resultDescription"
     ).textContent =
-        "Select a molecule and start a simulation.";
+        "Add substances to the chamber and start a simulation.";
 
 
     document.getElementById(
@@ -3216,22 +4104,26 @@ function resetSimulation() {
 
 
     document.getElementById(
-        "simulationStatus"
-    ).textContent =
-        "Select a molecule";
-
-
-    document.getElementById(
         "progressArea"
     ).style.display =
         "none";
 
 
-    updateInspector();
+    document.getElementById(
+        "simulationStatus"
+    ).textContent =
+        "Chamber empty";
 
-    renderMolecules();
 
-    resizeCanvas();
+    renderChamber();
+
+    updateStage();
+
+
+    addLog(
+        "Experiment reset",
+        "Chamber cleared and conditions restored"
+    );
 
 }
 
@@ -3315,8 +4207,16 @@ function addCustomMolecule() {
     );
 
 
+    renderMolecules();
+
     selectMolecule(
         custom
+    );
+
+
+    addLog(
+        "Custom substance created",
+        formula
     );
 
 }
@@ -3346,7 +4246,9 @@ function addLog(
     if (
         empty
     ) {
+
         empty.remove();
+
     }
 
 
@@ -3381,7 +4283,7 @@ function addLog(
             style="
                 margin-top:3px;
                 color:#62768d;
-                font-size:9px;
+                font-size:8px;
             ">
 
             ${description}
@@ -3408,7 +4310,7 @@ function clearLog() {
             id="emptyLog"
             style="
                 color:#62768d;
-                font-size:10px;
+                font-size:9px;
             ">
 
             No experiments yet.
@@ -3425,6 +4327,8 @@ function clearLog() {
 ========================================================= */
 
 renderMolecules();
+
+renderChamber();
 
 resizeCanvas();
 

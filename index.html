@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d17">
-<title>Virtual Chemistry Lab V0.2</title>
+<title>Virtual Chemistry Lab V0.3</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e8eef5}
 button,input,select{font:inherit}button{cursor:pointer}
@@ -79,21 +79,29 @@ button,input,select{font:inherit}button{cursor:pointer}
 
  <div class="panel"><div class="head"><b>ATOMIC COMPOSITION</b></div><div class="content"><div id="composition" class="composition"><div class="muted">Select a molecule.</div></div></div></div>
 
- <div class="panel"><div class="head"><b>SCIENTIFIC CALCULATION</b><span class="muted">V0.2</span></div><div class="content">
+ <div class="panel"><div class="head"><b>SCIENTIFIC MODEL</b><span class="muted">V0.3</span></div><div class="content">
   <div class="calc">
    <div class="box"><div class="pl">IDEAL GAS VOLUME</div><div id="volume" class="big">—</div></div>
-   <div class="box"><div class="pl">MOLES</div><div id="moles" class="big">—</div></div>
+   <div class="box"><div class="pl">TOTAL MOLES</div><div id="moles" class="big">—</div></div>
    <div class="box"><div class="pl">TEMPERATURE</div><div id="calcTemp" class="big">—</div></div>
    <div class="box"><div class="pl">PRESSURE</div><div id="calcPressure" class="big">—</div></div>
   </div>
-  <div class="formula-box">PV = nRT<br>R = 0.082057 L·atm·mol⁻¹·K⁻¹</div>
-  <div class="reaction"><div class="reaction-title">REACTION CHECK</div><div id="reactionLine" class="reaction-line">No reaction model selected.</div><div id="reactionNote" class="reaction-note">V0.2 includes a small set of educational stoichiometric rules. It does not predict arbitrary chemistry.</div></div>
+  <div class="formula-box">PV = nRT<br>R = 0.082057 L·atm·mol⁻¹·K⁻¹<br>Gas-volume model uses the total chamber amount.</div>
+  <div class="reaction"><div class="reaction-title">REACTION ENGINE</div>
+    <div id="reactionLine" class="reaction-line">Add supported reactants to the chamber.</div>
+    <div id="reactionNote" class="reaction-note">V0.3 performs educational stoichiometric checks, identifies limiting reagents, calculates theoretical products, and shows excess reactants. It does not predict arbitrary chemistry, kinetics, or reaction safety.</div>
+    <div id="stoichGrid" class="calc" style="margin-top:7px;display:none">
+      <div class="box"><div class="pl">LIMITING REAGENT</div><div id="limiting" class="big">—</div></div>
+      <div class="box"><div class="pl">THEORETICAL PRODUCT</div><div id="productYield" class="big">—</div></div>
+    </div>
+    <div id="excessBox" class="formula-box" style="display:none;margin-top:7px"></div>
+  </div>
  </div></div>
 
  <div class="panel"><div class="head"><b>EXPERIMENT LOG</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="clearLog()">Clear</button></div><div class="content"><div id="log" class="log"><div id="emptyLog" class="muted">No experiments yet.</div></div></div></div>
 </aside>
 </main>
-<footer class="footer">Virtual Chemistry Lab V0.2 · Browser-based educational scientific model · Not a substitute for laboratory validation</footer>
+<footer class="footer">Virtual Chemistry Lab V0.3 · Browser-based educational reaction model · Not a substitute for laboratory validation</footer>
 </div>
 
 <script>
@@ -123,8 +131,8 @@ function inspect(m){selected=m;document.getElementById("insTitle").textContent=m
  const c=document.getElementById("composition");c.innerHTML="";m.atoms.forEach(a=>{const d=document.createElement("div");d.className="atom";d.innerHTML=`<span><strong>${a[0]}</strong> ${a[0]}</span><b>× ${a[1]}</b>`;c.appendChild(d)});draw();
 }
 function addChamber(m){let x=chamber.find(i=>i.m.id===m.id);if(x)x.qty++;else chamber.push({m,qty:1});inspect(m);renderChamber();draw();addLog("Substance added",`${m.formula} × 1`)}
-function changeQty(id,d){const x=chamber.find(i=>i.m.id===id);if(!x)return;x.qty+=d;if(x.qty<1)chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw()}
-function removeQty(id){const x=chamber.find(i=>i.m.id===id);chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(x)addLog("Substance removed",x.m.formula)}
+function changeQty(id,d){const x=chamber.find(i=>i.m.id===id);if(!x)return;x.qty+=d;if(x.qty<1)chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc()}
+function removeQty(id){const x=chamber.find(i=>i.m.id===id);chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc();if(x)addLog("Substance removed",x.m.formula)}
 function renderChamber(){const el=document.getElementById("chamber"),count=document.getElementById("chamberCount"),total=document.getElementById("totalUnits");if(!chamber.length){el.innerHTML='<div class="empty">Your chamber is empty.<br>Add substances from the library.</div>';count.textContent="0 substances";total.textContent="0";return}el.innerHTML="";let t=0;chamber.forEach(x=>{t+=x.qty;const d=document.createElement("div");d.className="item";d.innerHTML=`<div class="itop"><div><div class="iname">${x.m.name}</div><div class="formula">${x.m.formula}</div></div><button class="remove">×</button></div><div class="qrow"><button class="qbtn">−</button><div class="qval">${x.qty}</div><button class="qbtn">+</button><span class="unit">units</span></div>`;
  d.querySelector(".remove").onclick=()=>removeQty(x.m.id);const q=d.querySelectorAll(".qbtn");q[0].onclick=()=>changeQty(x.m.id,-1);q[1].onclick=()=>changeQty(x.m.id,1);el.appendChild(d)});count.textContent=`${chamber.length} substances`;total.textContent=t}
 function clearChamber(){if(!chamber.length)return;chamber=[];renderChamber();draw();document.getElementById("stageStatus").textContent="Chamber empty";addLog("Chamber cleared","All substances removed")}
@@ -147,10 +155,82 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?.1:-.1)
 window.addEventListener("resize",resize);
 
 async function detect(){try{if(navigator.gpu&&await navigator.gpu.requestAdapter()){engine="WebGPU";document.getElementById("dot").className="dot ok";document.getElementById("statusText").textContent="WebGPU acceleration available";return}}catch(e){}engine="CPU";document.getElementById("statusText").textContent="CPU fallback mode"}
-function scientificCalc(){const T=Number(document.getElementById("temp").value)||25,P=Math.max(.0001,Number(document.getElementById("pressure").value)||1),n=Math.max(.0001,Number(document.getElementById("amount").value)||1),K=T+273.15,R=.082057,V=n*R*K/P;document.getElementById("volume").textContent=V.toFixed(3)+" L";document.getElementById("moles").textContent=n.toFixed(3)+" mol";document.getElementById("calcTemp").textContent=T.toFixed(1)+" °C";document.getElementById("calcPressure").textContent=P.toFixed(2)+" atm";return{T,P,n,V}}
-function reactionCheck(){const ids=chamber.map(x=>x.m.id);let line="No reaction model selected.",note="No supported educational reaction detected.";if(ids.includes("h2")&&ids.includes("o2")){line="2 H₂ + O₂ → 2 H₂O";note="Educational stoichiometric check: H₂ and O₂ can form water under appropriate conditions. This model does not calculate kinetics or ignition conditions."}else if(ids.includes("n2")&&ids.includes("h2")){line="N₂ + 3 H₂ → 2 NH₃";note="Educational stoichiometric relationship only; catalyst, pressure, temperature and kinetics are not modeled."}else if(ids.includes("ch4")&&ids.includes("o2")){line="CH₄ + 2 O₂ → CO₂ + 2 H₂O";note="Educational combustion equation only; real combustion behavior is not predicted."}document.getElementById("reactionLine").textContent=line;document.getElementById("reactionNote").textContent=note;return line}
-async function runScience(){if(!chamber.length){alert("請先加入至少一種物質。");return}const btn=document.getElementById("run");btn.disabled=true;btn.textContent="⏳ CALCULATING...";const c=scientificCalc(),rxn=reactionCheck();await new Promise(r=>setTimeout(r,650));addLog("Scientific model completed",`PV=nRT → ${c.V.toFixed(3)} L at ${c.T.toFixed(1)} °C and ${c.P.toFixed(2)} atm · ${rxn}`);btn.disabled=false;btn.textContent="🔬 RUN SCIENTIFIC MODEL"}
-function resetAll(){chamber=[];selected=null;renderChamber();document.getElementById("volume").textContent="—";document.getElementById("moles").textContent="—";document.getElementById("calcTemp").textContent="—";document.getElementById("calcPressure").textContent="—";document.getElementById("reactionLine").textContent="No reaction model selected.";document.getElementById("reactionNote").textContent="V0.2 includes a small set of educational stoichiometric rules. It does not predict arbitrary chemistry.";document.getElementById("stageStatus").textContent="Chamber empty";draw();addLog("Experiment reset","Conditions and chamber reset")}
+function getChamberMoles(){
+  return chamber.reduce((sum,x)=>sum+x.qty,0);
+}
+function getItem(id){
+  return chamber.find(x=>x.m.id===id);
+}
+function scientificCalc(){
+  const T=Number(document.getElementById("temp").value)||25;
+  const P=Math.max(.0001,Number(document.getElementById("pressure").value)||1);
+  const n=Math.max(.0001,getChamberMoles());
+  const K=T+273.15,R=.082057,V=n*R*K/P;
+  document.getElementById("volume").textContent=V.toFixed(3)+" L";
+  document.getElementById("moles").textContent=n.toFixed(3)+" mol";
+  document.getElementById("calcTemp").textContent=T.toFixed(1)+" °C";
+  document.getElementById("calcPressure").textContent=P.toFixed(2)+" atm";
+  return {T,P,n,V};
+}
+function stoichReport(){
+  const h2=getItem("h2"),o2=getItem("o2"),n2=getItem("n2"),ch4=getItem("ch4");
+  let line="No supported reaction detected.";
+  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run a V0.3 educational stoichiometric model.";
+  let limiting="—", product="—", excess="";
+
+  if(h2 && o2){
+    const h=h2.qty,o=o2.qty,extent=Math.min(h/2,o);
+    const h2o=2*extent,remH=h-2*extent,remO=o-extent;
+    limiting=(h/2<o)?"H₂":"O₂";
+    line="2 H₂ + O₂ → 2 H₂O"; product=`H₂O ${h2o.toFixed(3)} mol`;
+    note="Stoichiometric model: the balanced equation determines the limiting reagent. Actual reaction conditions and kinetics are not modeled.";
+    excess=`Remaining after theoretical conversion: H₂ ${remH.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
+  } else if(n2 && h2){
+    const n=n2.qty,h=h2.qty,extent=Math.min(n,h/3);
+    const nh3=2*extent,remN=n-extent,remH=h-3*extent;
+    limiting=(n<h/3)?"N₂":"H₂";
+    line="N₂ + 3 H₂ → 2 NH₃"; product=`NH₃ ${nh3.toFixed(3)} mol`;
+    note="Stoichiometric model only. Catalyst, equilibrium, pressure effects and kinetics are not calculated.";
+    excess=`Remaining after theoretical conversion: N₂ ${remN.toFixed(3)} mol · H₂ ${remH.toFixed(3)} mol`;
+  } else if(ch4 && o2){
+    const c=ch4.qty,o=o2.qty,extent=Math.min(c,o/2);
+    const co2=extent,h2o=2*extent,remC=c-extent,remO=o-2*extent;
+    limiting=(c<o/2)?"CH₄":"O₂";
+    line="CH₄ + 2 O₂ → CO₂ + 2 H₂O"; product=`CO₂ ${co2.toFixed(3)} mol · H₂O ${h2o.toFixed(3)} mol`;
+    note="Educational combustion stoichiometry only. Ignition, heat release, kinetics and safety conditions are not modeled.";
+    excess=`Remaining after theoretical conversion: CH₄ ${remC.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
+  }
+
+  document.getElementById("reactionLine").textContent=line;
+  document.getElementById("reactionNote").textContent=note;
+  const grid=document.getElementById("stoichGrid"),box=document.getElementById("excessBox");
+  if(line!=="No supported reaction detected."){
+    grid.style.display="grid";
+    document.getElementById("limiting").textContent=limiting;
+    document.getElementById("productYield").textContent=product;
+    box.style.display="block";box.textContent=excess||"No excess reactant.";
+  }else{grid.style.display="none";box.style.display="none";}
+  return {line,limiting,product,excess};
+}
+async function runScience(){
+  if(!chamber.length){alert("請先加入至少一種物質。");return}
+  const btn=document.getElementById("run");
+  btn.disabled=true;btn.textContent="⏳ CALCULATING...";
+  const calc=scientificCalc(),reaction=stoichReport();
+  await new Promise(r=>setTimeout(r,700));
+  addLog("Scientific model completed",
+    `Total chamber amount ${calc.n.toFixed(3)} mol · PV=nRT → ${calc.V.toFixed(3)} L · ${calc.T.toFixed(1)} °C · ${calc.P.toFixed(2)} atm · ${reaction.line}${reaction.limiting!=="—"?" · Limiting: "+reaction.limiting:""}`);
+  btn.disabled=false;btn.textContent="🔬 RUN SCIENTIFIC MODEL";
+}
+function resetAll(){
+  chamber=[];selected=null;renderChamber();
+  ["volume","moles","calcTemp","calcPressure"].forEach(id=>document.getElementById(id).textContent="—");
+  document.getElementById("reactionLine").textContent="Add supported reactants to the chamber.";
+  document.getElementById("reactionNote").textContent="V0.3 performs educational stoichiometric checks, identifies limiting reagents, calculates theoretical products, and shows excess reactants. It does not predict arbitrary chemistry, kinetics, or reaction safety.";
+  document.getElementById("stoichGrid").style.display="none";
+  document.getElementById("excessBox").style.display="none";
+  document.getElementById("stageStatus").textContent="Chamber empty";draw();addLog("Experiment reset","Conditions and chamber reset");
+}
 function addLog(t,d){const l=document.getElementById("log"),e=document.getElementById("emptyLog");if(e)e.remove();const x=document.createElement("div");x.className="logitem";x.innerHTML=`<div class="time">${new Date().toLocaleTimeString()}</div><div class="ltitle">${t}</div><div class="ldesc">${d}</div>`;l.prepend(x)}
 function clearLog(){document.getElementById("log").innerHTML='<div id="emptyLog" class="muted">No experiments yet.</div>'}
 

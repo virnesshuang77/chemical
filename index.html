@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d17">
-<title>Virtual Chemistry Lab V1.0</title>
+<title>Virtual Chemistry Lab V1.1</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e8eef5}
 button,input,select{font:inherit}button{cursor:pointer}
@@ -261,6 +261,7 @@ function drawMol(m,cx,cy,k=.6,angle=0){
 }
 
 let particles=[], simulationRunning=false, reactionCount=0, simTime=0, lastTs=0, effects=[];
+let reactionEvents=[], reactionLock=false;
 
 const REACTIONS={
   "h2+o2":{reactants:["h2","o2"],consumes:{h2:2,o2:1},products:{water:2},label:"2 H₂ + O₂ → 2 H₂O"},
@@ -286,7 +287,6 @@ function buildParticles(){
   particles=[];
   chamber.forEach(x=>{
     for(let i=0;i<x.qty;i++){
-      // A maximum visual population keeps the browser responsive; chamber quantities remain the scientific state.
       if(particles.length>=120) break;
       particles.push(randomParticle(x.m));
     }
@@ -298,7 +298,7 @@ function hasInventory(def){
 }
 function consumeInventory(def){
   Object.entries(def.consumes).forEach(([id,n])=>{
-    const item=getItem(id); if(item) item.qty-=n;
+    const item=getItem(id); if(item)item.qty-=n;
   });
   chamber=chamber.filter(x=>x.qty>0);
 }
@@ -306,10 +306,9 @@ function addProduct(id,n,sourceX,sourceY){
   const m=DB.find(x=>x.id===id); if(!m)return;
   let item=getItem(id);
   if(item)item.qty+=n; else chamber.push({m,qty:n});
-  // Spawn product particles from the reaction location.
   for(let i=0;i<n && particles.length<120;i++){
     const p=randomParticle(m);
-    p.x=sourceX+(Math.random()-.5)*18;p.y=sourceY+(Math.random()-.5)*18;
+    p.x=sourceX+(Math.random()-.5)*26;p.y=sourceY+(Math.random()-.5)*26;
     p.vx=(Math.random()-.5)*.8;p.vy=(Math.random()-.5)*.8;p.flash=1;
     particles.push(p);
   }
@@ -329,14 +328,118 @@ function colliding(a,b){
   const rr=moleculeRadius(a.m)+moleculeRadius(b.m);
   return dx*dx+dy*dy<rr*rr;
 }
+
+function rotatedAtomOffset(a,angle,scale=10){
+  const ca=Math.cos(angle),sa=Math.sin(angle);
+  return {x:(a.x*ca-a.y*sa)*scale,y:(a.x*sa+a.y*ca)*scale};
+}
+function collectReactionAtoms(selected){
+  const atoms=[],links=[];
+  selected.forEach(p=>{
+    const base=atoms.length;
+    p.m.draw.forEach(a=>{
+      const o=rotatedAtomOffset(a,p.angle,10);
+      atoms.push({e:a.e,r:a.r,startX:p.x+o.x,startY:p.y+o.y});
+    });
+    p.m.links.forEach(l=>links.push([base+l[0],base+l[1]]));
+  });
+  return {atoms,links};
+}
+function collectProductAtoms(def,x,y){
+  const atoms=[],links=[];
+  let moleculeIndex=0;
+  Object.entries(def.products).forEach(([id,n])=>{
+    const m=DB.find(v=>v.id===id); if(!m)return;
+    for(let count=0;count<n;count++){
+      const angle=(moleculeIndex%2?-.25:.25)+(Math.random()-.5)*.15;
+      const spread=(moleculeIndex-(Object.values(def.products).reduce((a,b)=>a+b,0)-1)/2)*38;
+      const base=atoms.length;
+      m.draw.forEach(a=>{
+        const o=rotatedAtomOffset(a,angle,10);
+        atoms.push({e:a.e,r:a.r,endX:x+spread+o.x,endY:y+o.y});
+      });
+      m.links.forEach(l=>links.push([base+l[0],base+l[1]]));
+      moleculeIndex++;
+    }
+  });
+  return {atoms,links};
+}
+function pairReactionAtoms(source,target){
+  const used=new Set(),pairs=[];
+  source.forEach((a,si)=>{
+    let best=-1,bestD=Infinity;
+    target.forEach((b,ti)=>{
+      if(used.has(ti))return;
+      const elementPenalty=a.e===b.e?0:10000;
+      const d=elementPenalty+Math.hypot((a.startX||0)-(b.endX||0),(a.startY||0)-(b.endY||0));
+      if(d<bestD){bestD=d;best=ti;}
+    });
+    if(best>=0){used.add(best);pairs.push([si,best]);}
+  });
+  return pairs;
+}
+function interpolate(a,b,t){return a+(b-a)*t;}
+function drawAtomSprite(e,x,y,r,alpha=1){
+  const col=colors[e]||"#55d3ad";
+  const rr=Math.max(5,r*3.5);
+  const g=ctx.createRadialGradient(x-rr*.35,y-rr*.35,rr*.05,x,y,rr);
+  g.addColorStop(0,"#fff");g.addColorStop(.18,col);g.addColorStop(1,"#162431");
+  ctx.globalAlpha=alpha;ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="#b9d5df66";ctx.stroke();
+  ctx.fillStyle="#eff8ff";ctx.font=Math.max(8,rr*.7)+"px Segoe UI";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(e,x,y);ctx.globalAlpha=1;
+}
+function drawReactionTransition(ev){
+  const raw=Math.max(0,Math.min(1,ev.t/ev.duration));
+  const ease=raw<.5?2*raw*raw:1-Math.pow(-2*raw+2,2)/2;
+  const fadeOut=Math.max(0,1-raw*2.1);
+  const fadeIn=Math.max(0,(raw-.25)/.75);
+
+  // Old bonds fade while new bonds emerge: this is the V1.1 bond rearrangement.
+  ev.sourceLinks.forEach(l=>{
+    const a=ev.sourceAtoms[l[0]],b=ev.sourceAtoms[l[1]];
+    ctx.globalAlpha=.8*fadeOut;ctx.strokeStyle="#7f94a8";ctx.lineWidth=3.5;
+    ctx.beginPath();ctx.moveTo(a.startX,a.startY);ctx.lineTo(b.startX,b.startY);ctx.stroke();ctx.globalAlpha=1;
+  });
+  ev.targetLinks.forEach(l=>{
+    const a=ev.targetAtoms[l[0]],b=ev.targetAtoms[l[1]];
+    ctx.globalAlpha=.85*fadeIn;ctx.strokeStyle="#55d3ad";ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(a.endX,a.endY);ctx.lineTo(b.endX,b.endY);ctx.stroke();ctx.globalAlpha=1;
+  });
+  ev.pairs.forEach(([si,ti])=>{
+    const a=ev.sourceAtoms[si],b=ev.targetAtoms[ti];
+    const x=interpolate(a.startX,b.endX,ease),y=interpolate(a.startY,b.endY,ease);
+    drawAtomSprite(a.e,x,y,a.r,Math.min(1,.95+fadeIn*.05));
+  });
+
+  ctx.globalAlpha=.95;
+  const pulse=22+Math.sin(raw*Math.PI)*30;
+  ctx.beginPath();ctx.arc(ev.x,ev.y,pulse,0,Math.PI*2);ctx.strokeStyle=`rgba(98,217,178,${.25+.55*Math.sin(raw*Math.PI)})`;ctx.lineWidth=2.5;ctx.stroke();
+  ctx.fillStyle="#7de3bf";ctx.font="bold 10px Segoe UI";ctx.textAlign="center";ctx.fillText(raw<.45?"BONDS BREAKING":"NEW BONDS FORMING",ev.x,ev.y-pulse-7);ctx.globalAlpha=1;
+}
+function startReactionTransition(selected,def,x,y){
+  const source=collectReactionAtoms(selected),target=collectProductAtoms(def,x,y);
+  reactionEvents.push({t:0,duration:.85,x,y,sourceAtoms:source.atoms,targetAtoms:target.atoms,sourceLinks:source.links,targetLinks:target.links,
+    pairs:pairReactionAtoms(source.atoms,target.atoms),def,committed:false});
+  reactionLock=true;
+  selected.forEach(p=>p.alive=false);
+  effects.push({x,y,t:1,label:"REACTION"});
+  addLog("Bond rearrangement",`${def.label} · collision → old bonds break → atoms rearrange → new bonds form`);
+}
+function commitReaction(ev){
+  consumeInventory(ev.def);
+  Object.entries(ev.def.products).forEach(([id,n])=>addProduct(id,n,ev.x,ev.y));
+  reactionCount++;
+  renderChamber();scientificCalc();
+  ev.committed=true;
+  reactionEvents=reactionEvents.filter(e=>e!==ev);
+  reactionLock=false;
+}
 function tryReaction(a,b){
   const def=reactionDefinition();
-  if(!def || !a.alive || !b.alive || a.m.id===b.m.id || !hasInventory(def))return false;
+  if(reactionLock || !def || !a.alive || !b.alive || a.m.id===b.m.id || !hasInventory(def))return false;
   const ids=[a.m.id,b.m.id];
   if(!def.reactants.every(id=>ids.includes(id)))return false;
   if(Math.random()>reactionProbability())return false;
 
-  // For reactions requiring 3+ molecules, a collision is the trigger and the rest are selected nearby.
   const selected=[a,b];
   for(const needId of Object.keys(def.consumes)){
     const need=def.consumes[needId];
@@ -346,15 +449,9 @@ function tryReaction(a,b){
       if(candidate)selected.push(candidate); else return false;
     }
   }
-  selected.forEach(p=>p.alive=false);
   const x=selected.reduce((s,p)=>s+p.x,0)/selected.length;
   const y=selected.reduce((s,p)=>s+p.y,0)/selected.length;
-  consumeInventory(def);
-  Object.entries(def.products).forEach(([id,n])=>addProduct(id,n,x,y));
-  effects.push({x,y,t:1,label:"REACTION"});
-  reactionCount++;
-  addLog("Molecular reaction",`${def.label} · collision → bond rearrangement → products formed`);
-  renderChamber(); scientificCalc();
+  startReactionTransition(selected,def,x,y);
   return true;
 }
 function resolveBounce(a,b){
@@ -366,9 +463,8 @@ function resolveBounce(a,b){
   if(overlap>0){a.x-=nx*overlap*.5;a.y-=ny*overlap*.5;b.x+=nx*overlap*.5;b.y+=ny*overlap*.5;}
 }
 function syncParticlePopulation(){
-  // After a reaction the particle array already contains products. Reconcile only if manual chamber edits occurred.
   const wanted=Math.min(120,chamber.reduce((s,x)=>s+x.qty,0));
-  if(!particles.length && wanted) buildParticles();
+  if(!particles.length && wanted && !reactionEvents.length) buildParticles();
 }
 function drawEffects(){
   effects=effects.filter(e=>e.t>0);
@@ -384,16 +480,15 @@ function draw(){
   resize();
   const w=canvas.clientWidth,h=canvas.clientHeight;
   ctx.clearRect(0,0,w,h);
-  if(!chamber.length){
-    document.getElementById("canvasNote").textContent="Add substances to the chamber";
-    return;
-  }
+  if(!chamber.length && !reactionEvents.length){document.getElementById("canvasNote").textContent="Add substances to the chamber";return;}
   syncParticlePopulation();
   const def=reactionDefinition();
   document.getElementById("canvasNote").textContent=
-    simulationRunning ? `Simulation running · collisions ${Math.round(reactionCount)} · ${def?def.label:"No supported reaction"}` :
+    reactionEvents.length ? `Molecular reaction · ${reactionEvents[0].def.label}` :
+    simulationRunning ? `Simulation running · reactions ${Math.round(reactionCount)} · ${def?def.label:"No supported reaction"}` :
     chamber.map(x=>x.m.formula+" × "+x.qty).join("   ·   ");
   document.getElementById("stageStatus").textContent=
+    reactionEvents.length ? "Bond rearrangement" :
     simulationRunning ? `Simulating · ${reactionCount} reactions` : (def?"Ready to react":"Ready");
 
   particles.forEach(p=>{
@@ -401,17 +496,25 @@ function draw(){
     drawMol(p.m,p.x,p.y,.46,p.angle);
     if(p.flash>0){ctx.beginPath();ctx.arc(p.x,p.y,22+(1-p.flash)*15,0,Math.PI*2);ctx.strokeStyle=`rgba(98,217,178,${p.flash})`;ctx.stroke();p.flash-=.025;}
   });
+  reactionEvents.forEach(drawReactionTransition);
   drawEffects();
   if(simulationRunning) drawReactionOverlay(w,h);
 }
 function drawReactionOverlay(w,h){
-  ctx.fillStyle="#07101d99";ctx.fillRect(10,h-39,270,27);
+  ctx.fillStyle="#07101d99";ctx.fillRect(10,h-39,300,27);
   ctx.fillStyle="#86a0b8";ctx.font="8px Segoe UI";ctx.textAlign="left";
-  ctx.fillText(`Collision probability: ${(reactionProbability()*100).toFixed(1)}% · t=${simTime.toFixed(1)} s`,18,h-22);
+  ctx.fillText(`Collision probability: ${(reactionProbability()*100).toFixed(1)}% · t=${simTime.toFixed(1)} s · reactions=${reactionCount}`,18,h-22);
+}
+function updateReactionEvents(dt){
+  if(!reactionEvents.length)return;
+  const ev=reactionEvents[0];ev.t+=dt;
+  if(ev.t>=ev.duration)commitReaction(ev);
 }
 function updateSimulation(dt){
   if(!simulationRunning)return;
   simTime+=dt;
+  updateReactionEvents(dt);
+  if(reactionLock)return;
   const w=canvas.clientWidth,h=canvas.clientHeight;
   const speed=0.7+Math.min(2.0,Math.sqrt(Math.max(0,Number(document.getElementById("temp").value)||25)+273.15)/12);
   particles.forEach(p=>{
@@ -432,6 +535,7 @@ function updateSimulation(dt){
     }
   }
   particles=particles.filter(p=>p.alive);
+  if(reactionEvents.length)return;
   const def=reactionDefinition();
   if(!def || !hasInventory(def)){
     simulationRunning=false;
@@ -453,60 +557,6 @@ async function detect(){try{if(navigator.gpu&&await navigator.gpu.requestAdapter
 function getChamberMoles(){
   return chamber.reduce((sum,x)=>sum+x.qty,0);
 }
-function getItem(id){
-  return chamber.find(x=>x.m.id===id);
-}
-function scientificCalc(){
-  const T=Number(document.getElementById("temp").value)||25;
-  const P=Math.max(.0001,Number(document.getElementById("pressure").value)||1);
-  const n=Math.max(.0001,getChamberMoles());
-  const K=T+273.15,R=.082057,V=n*R*K/P;
-  document.getElementById("volume").textContent=V.toFixed(3)+" L";
-  document.getElementById("moles").textContent=n.toFixed(3)+" mol";
-  document.getElementById("calcTemp").textContent=T.toFixed(1)+" °C";
-  document.getElementById("calcPressure").textContent=P.toFixed(2)+" atm";
-  return {T,P,n,V};
-}
-function setThermo(enthalpyPerReaction,type,extent,note){
-  const total=enthalpyPerReaction*extent;
-  document.getElementById("enthalpy").textContent=enthalpyPerReaction.toFixed(1)+" kJ";
-  document.getElementById("energyType").textContent=type;
-  document.getElementById("energyScale").textContent=total.toFixed(1)+" kJ";
-  document.getElementById("systemEnergy").textContent=(total<=0?"Released ":"Required ")+Math.abs(total).toFixed(1)+" kJ";
-  document.getElementById("thermoNote").textContent=note;
-}
-function clearThermo(){
-  ["enthalpy","energyType","energyScale","systemEnergy"].forEach(id=>document.getElementById(id).textContent="—");
-  document.getElementById("thermoNote").textContent="V1.0 keeps the V0.6 educational thermodynamics model. Heat transfer and real temperature evolution are not yet simulated.";
-}
-function clearConditions(){
-  ["conditionState","relativeRate","conditionConc","pressureEffect"].forEach(id=>document.getElementById(id).textContent="—");
-  document.getElementById("conditionNote").textContent="V1.0 uses temperature, pressure and concentration to modulate a simplified collision-reaction probability. It is not experimentally calibrated.";
-}
-function estimateConditions(calc,reactionDetected){
-  const C=Math.max(.001,Number(document.getElementById("conc").value)||1);
-  document.getElementById("conditionConc").textContent=C.toFixed(2)+" mol/L";
-  if(!reactionDetected){
-    document.getElementById("conditionState").textContent="No reaction";
-    document.getElementById("relativeRate").textContent="—";
-    document.getElementById("pressureEffect").textContent="—";
-    clearKinetics();
-    return {state:"No reaction",rate:"—",pressure:"—",conc:C};
-  }
-  const tempFactor=Math.exp(Math.max(-2,Math.min(2,(calc.T-25)/40)));
-  const concFactor=Math.sqrt(C);
-  const pressureFactor=Math.sqrt(calc.P);
-  const rateIndex=Math.max(.05,Math.min(20,tempFactor*concFactor*pressureFactor));
-  const state=calc.T<0?"Cold":calc.T<25?"Cool":calc.T<60?"Moderate":"Hot";
-  const pressure=calc.P<.5?"Low":calc.P<=2?"Baseline":"High";
-  document.getElementById("conditionState").textContent=state;
-  document.getElementById("relativeRate").textContent=rateIndex.toFixed(2)+"×";
-  document.getElementById("pressureEffect").textContent=pressure;
-  document.getElementById("conditionNote").textContent=
-    `Qualitative condition index: ${calc.T.toFixed(1)} °C · ${calc.P.toFixed(2)} atm · ${C.toFixed(2)} mol/L. It is not an experimentally calibrated rate prediction.`;
-  return {state,rate:rateIndex,pressure,conc:C};
-}
-
 function kineticsParameters(reactionLine){
   // Illustrative educational parameters only.
   if(reactionLine.includes("CH₄")) return {Ea:80200,A:2.5e6,order:1.5,label:"CH₄ combustion"};
@@ -659,7 +709,7 @@ async function runScience(){
   const def=reactionDefinition();
   if(!def){
     document.getElementById("stageStatus").textContent="Unsupported reaction";
-    addLog("Reaction not supported","V1.0 currently supports H₂ + O₂, N₂ + H₂, and CH₄ + O₂ reaction systems.");
+    addLog("Reaction not supported","V1.1 currently supports H₂ + O₂, N₂ + H₂, and CH₄ + O₂ reaction systems with simplified bond-rearrangement visualization.");
     return;
   }
   if(!hasInventory(def)){
@@ -676,11 +726,11 @@ async function runScience(){
 }
 
 function resetAll(){
-  simulationRunning=false;particles=[];effects=[];reactionCount=0;simTime=0;
+  simulationRunning=false;particles=[];effects=[];reactionEvents=[];reactionLock=false;reactionCount=0;simTime=0;
   chamber=[];selected=null;renderChamber();
   ["volume","moles","calcTemp","calcPressure"].forEach(id=>document.getElementById(id).textContent="—");
   document.getElementById("reactionLine").textContent="Add supported reactants to the chamber.";
-  document.getElementById("reactionNote").textContent="V1.0 performs the educational calculations and can now execute a simplified particle-level reaction simulation.";
+  document.getElementById("reactionNote").textContent="V1.1 performs the educational calculations and adds a simplified atom-level bond rearrangement animation during particle reactions.";
   document.getElementById("stoichGrid").style.display="none";
   document.getElementById("excessBox").style.display="none";
   clearThermo();clearConditions();clearKinetics();

@@ -285,8 +285,9 @@ function randomParticle(m){
 }
 function buildParticles(){
   particles=[];
+  const VISUAL_PER_UNIT=8; // visual representatives; chamber quantities remain chemical quantities
   chamber.forEach(x=>{
-    for(let i=0;i<x.qty;i++){
+    for(let i=0;i<x.qty*VISUAL_PER_UNIT;i++){
       if(particles.length>=120) break;
       particles.push(randomParticle(x.m));
     }
@@ -320,7 +321,7 @@ function reactionProbability(){
   const tempFactor=Math.max(.12,Math.min(3.8,Math.exp((T-25)/45)));
   const concFactor=Math.max(.25,Math.min(2.5,Math.sqrt(C)));
   const pressureFactor=Math.max(.25,Math.min(2.0,Math.sqrt(P)));
-  return Math.max(.002,Math.min(.32,.035*tempFactor*concFactor*pressureFactor));
+  return Math.max(.01,Math.min(.55,.075*tempFactor*concFactor*pressureFactor));
 }
 function moleculeRadius(m){return 18+Math.sqrt(m.draw.length)*3;}
 function colliding(a,b){
@@ -427,6 +428,9 @@ function startReactionTransition(selected,def,x,y){
 function commitReaction(ev){
   consumeInventory(ev.def);
   Object.entries(ev.def.products).forEach(([id,n])=>addProduct(id,n,ev.x,ev.y));
+  // Rebuild representatives so visual particles always match current chamber inventory.
+  particles=particles.filter(p=>p.alive);
+  buildParticles();
   reactionCount++;
   renderChamber();scientificCalc();
   ev.committed=true;
@@ -445,7 +449,7 @@ function tryReaction(a,b){
     const need=def.consumes[needId];
     const already=selected.filter(p=>p.m.id===needId).length;
     for(let i=already;i<need;i++){
-      const candidate=particles.find(p=>p.alive&&p!==a&&p!==b&&p.m.id===needId&&Math.hypot(p.x-a.x,p.y-a.y)<110);
+      const candidate=particles.find(p=>p.alive&&p!==a&&p!==b&&p.m.id===needId&&Math.hypot(p.x-a.x,p.y-a.y)<190);
       if(candidate)selected.push(candidate); else return false;
     }
   }
@@ -721,7 +725,7 @@ async function runScience(){
   document.getElementById("run").disabled=false;
   document.getElementById("run").textContent="⏸ PAUSE SIMULATION";
   document.getElementById("stageStatus").textContent="Simulating";
-  addLog("V1.0 simulation started",`${def.label} · particles=${particles.length} · collision probability ${(reactionProbability()*100).toFixed(1)}%`);
+  addLog("V1.1 simulation started",`${def.label} · particles=${particles.length} · collision probability ${(reactionProbability()*100).toFixed(1)}%`);
   if(kinetics) document.getElementById("reactionProgress").textContent="0.0% → live simulation";
 }
 
@@ -730,7 +734,7 @@ function resetAll(){
   chamber=[];selected=null;renderChamber();
   ["volume","moles","calcTemp","calcPressure"].forEach(id=>document.getElementById(id).textContent="—");
   document.getElementById("reactionLine").textContent="Add supported reactants to the chamber.";
-  document.getElementById("reactionNote").textContent="V1.1 performs the educational calculations and adds a simplified atom-level bond rearrangement animation during particle reactions.";
+  document.getElementById("reactionNote").textContent="V1.1 performs the educational calculations and a simplified atom-level bond rearrangement animation. Visual particles are representative; chamber quantities remain the chemical source of truth.";
   document.getElementById("stoichGrid").style.display="none";
   document.getElementById("excessBox").style.display="none";
   clearThermo();clearConditions();clearKinetics();

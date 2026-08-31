@@ -28,6 +28,23 @@ button,input,select{font:inherit}button{cursor:pointer}
 @media(max-width:1250px){.main{grid-template-columns:245px minmax(430px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}}
 @media(max-width:850px){.main{display:flex;flex-direction:column;padding:6px}.right{display:flex}.left{order:2;min-height:auto}.center{order:1;min-height:650px}.right{order:3}.stage{min-height:420px}.control-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.header{padding:0 11px}.sub{display:none}.status{font-size:7px}.main{padding:4px}.center{min-height:600px}.stage{min-height:380px}.action{flex-direction:column}.reset{width:100%;height:34px}}
+
+/* V1.0.1 desktop layout: use more of large monitors without changing the simulation engine. */
+@media (min-width:1600px){
+  .header{height:68px;padding:0 28px}
+  .logo{width:40px;height:40px;font-size:21px}.title{font-size:17px}.sub{font-size:10px}
+  .status{padding:7px 12px;font-size:10px}
+  .main{max-width:3400px;padding:16px;grid-template-columns:320px minmax(700px,1fr) 430px;gap:16px}
+  .left,.center{min-height:820px}
+  .head{height:48px;padding:0 14px}.head b{font-size:11px}.muted{font-size:9px}
+  .section,.content{padding:12px}.label{font-size:8px}
+  .card{padding:10px}.name{font-size:11px}.type,.meta{font-size:8px}.formula{font-size:13px}.add{height:28px;font-size:9px}
+  .chamber-list{padding:11px 12px;gap:8px;max-height:380px}.item{padding:9px}.iname{font-size:11px}.qbtn,.qval{height:26px}.qbtn{width:26px}.qval{font-size:10px}.unit{font-size:8px}
+  .stage{min-height:560px}.stage-label,.hint{font-size:8px}.canvas-note{font-size:8px}.zoom button{width:29px;height:29px}.zv{font-size:8px}
+  .controls{padding:12px}.control-grid{gap:9px}.control{padding:9px}.control label{font-size:8px}.control input{font-size:12px}.unit2{font-size:8px}.action{gap:9px}.run{height:44px;font-size:10px}.reset{font-size:9px}
+  .ins-title{font-size:16px}.ins-formula{font-size:20px}.props{gap:8px}.prop{padding:9px}.pl{font-size:7px}.pv{font-size:10px}
+  .atom{padding:9px;font-size:9px}.box{padding:10px}.box .pl{font-size:7px}.big{font-size:14px}.formula-box{font-size:10px}.reaction{padding:10px}.reaction-title{font-size:9px}.reaction-line{font-size:11px}.reaction-note{font-size:8px}.log{max-height:160px}.logitem{padding:9px}.time{font-size:7px}.ltitle{font-size:9px}.ldesc{font-size:8px}
+}
 </style>
 </head>
 <body>
@@ -586,11 +603,13 @@ async function runScience(){
   const kinetics=updateKinetics(calc,reaction);
   const def=reactionDefinition();
   if(!def){
-    alert("V1.0 目前支援：2 H₂ + O₂ → 2 H₂O、N₂ + 3 H₂ → 2 NH₃、CH₄ + 2 O₂ → CO₂ + 2 H₂O");
+    document.getElementById("stageStatus").textContent="Unsupported reaction";
+    addLog("Reaction not supported","V1.0 currently supports H₂ + O₂, N₂ + H₂, and CH₄ + O₂ reaction systems.");
     return;
   }
   if(!hasInventory(def)){
-    alert("反應物數量不足以完成下一個化學計量事件。");
+    document.getElementById("stageStatus").textContent="Insufficient reactants";
+    addLog("Insufficient reactants","Current chamber inventory cannot satisfy the next stoichiometric reaction event.");
     return;
   }
   reactionCount=0;simTime=0;effects=[];buildParticles();simulationRunning=true;

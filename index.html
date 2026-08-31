@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d17">
-<title>Virtual Chemistry Lab V0.6</title>
+<title>Virtual Chemistry Lab V1.0</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI","Microsoft JhengHei",Arial,sans-serif;background:#080d17;color:#e8eef5}
 button,input,select{font:inherit}button{cursor:pointer}
@@ -79,7 +79,7 @@ button,input,select{font:inherit}button{cursor:pointer}
 
  <div class="panel"><div class="head"><b>ATOMIC COMPOSITION</b></div><div class="content"><div id="composition" class="composition"><div class="muted">Select a molecule.</div></div></div></div>
 
- <div class="panel"><div class="head"><b>SCIENTIFIC MODEL</b><span class="muted">V0.6</span></div><div class="content">
+ <div class="panel"><div class="head"><b>SCIENTIFIC MODEL</b><span class="muted">V1.0</span></div><div class="content">
   <div class="calc">
    <div class="box"><div class="pl">IDEAL GAS VOLUME</div><div id="volume" class="big">—</div></div>
    <div class="box"><div class="pl">TOTAL MOLES</div><div id="moles" class="big">—</div></div>
@@ -89,7 +89,7 @@ button,input,select{font:inherit}button{cursor:pointer}
   <div class="formula-box">PV = nRT<br>R = 0.082057 L·atm·mol⁻¹·K⁻¹<br>Gas-volume model uses the total chamber amount.</div>
   <div class="reaction"><div class="reaction-title">REACTION ENGINE</div>
     <div id="reactionLine" class="reaction-line">Add supported reactants to the chamber.</div>
-    <div id="reactionNote" class="reaction-note">V0.6 performs educational stoichiometric and thermodynamic checks, identifies limiting reagents, calculates theoretical products, and shows excess reactants. It does not predict arbitrary chemistry, kinetics, or reaction safety.</div>
+    <div id="reactionNote" class="reaction-note">V1.0 adds an actual particle-level reaction loop: molecules move, collide, pass a simplified reaction-probability gate, are consumed according to stoichiometry, and generate product molecules. It remains an educational simulation, not a laboratory-accurate molecular dynamics engine.</div>
     <div id="stoichGrid" class="calc" style="margin-top:7px;display:none">
       <div class="box"><div class="pl">LIMITING REAGENT</div><div id="limiting" class="big">—</div></div>
       <div class="box"><div class="pl">THEORETICAL PRODUCT</div><div id="productYield" class="big">—</div></div>
@@ -103,7 +103,7 @@ button,input,select{font:inherit}button{cursor:pointer}
         <div class="box"><div class="pl">ENERGY SCALE</div><div id="energyScale" class="big">—</div></div>
         <div class="box"><div class="pl">SYSTEM ENERGY</div><div id="systemEnergy" class="big">—</div></div>
       </div>
-      <div id="thermoNote" class="reaction-note">V0.6 uses approximate standard reaction enthalpies for the supported educational reactions. It does not model heat transfer, kinetics, equilibrium, or actual temperature rise.</div>
+      <div id="thermoNote" class="reaction-note">V1.0 keeps the V0.6 educational thermodynamics model. Heat transfer and real temperature evolution are not yet simulated.</div>
     </div>
     <div class="reaction" style="margin-top:7px">
       <div class="reaction-title">REACTION CONDITIONS</div>
@@ -113,7 +113,7 @@ button,input,select{font:inherit}button{cursor:pointer}
         <div class="box"><div class="pl">CONCENTRATION</div><div id="conditionConc" class="big">—</div></div>
         <div class="box"><div class="pl">PRESSURE EFFECT</div><div id="pressureEffect" class="big">—</div></div>
       </div>
-      <div id="conditionNote" class="reaction-note">V0.6 connects temperature, pressure, and concentration inputs to an educational reaction-condition model. It is qualitative and is not a real kinetic predictor.</div>
+      <div id="conditionNote" class="reaction-note">V1.0 uses temperature, pressure and concentration to modulate a simplified collision-reaction probability. It is not experimentally calibrated.</div>
     </div>
     <div class="reaction" style="margin-top:7px">
       <div class="reaction-title">REACTION KINETICS</div>
@@ -126,14 +126,14 @@ button,input,select{font:inherit}button{cursor:pointer}
       <div class="formula-box" style="margin-top:7px">
         <div id="arrheniusEquation">k = A · exp(−Ea / RT)</div>
       </div>
-      <div id="kineticsNote" class="reaction-note">V0.6 adds an educational Arrhenius-style kinetics model. Parameters are illustrative, not experimentally calibrated, and do not predict real reaction rates.</div>
+      <div id="kineticsNote" class="reaction-note">V1.0 retains the V0.6 Arrhenius-style display while the molecular view uses a separate normalized collision-probability model for animation stability.</div>
     </div>
  </div></div>
 
  <div class="panel"><div class="head"><b>EXPERIMENT LOG</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="clearLog()">Clear</button></div><div class="content"><div id="log" class="log"><div id="emptyLog" class="muted">No experiments yet.</div></div></div></div>
 </aside>
 </main>
-<footer class="footer">Virtual Chemistry Lab V0.6 · Browser-based educational reaction model · Not a substitute for laboratory validation</footer>
+<footer class="footer">Virtual Chemistry Lab V1.0 · Browser-based molecular reaction simulation · Educational model · Not a substitute for laboratory validation</footer>
 </div>
 
 <script>
@@ -144,7 +144,8 @@ const DB=[
 {id:"h2",name:"Hydrogen",formula:"H₂",mass:2.016,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["H",2]],bonds:1,draw:[{e:"H",x:-.65,y:0,r:.75},{e:"H",x:.65,y:0,r:.75}],links:[[0,1]]},
 {id:"n2",name:"Nitrogen",formula:"N₂",mass:28.014,type:"Gas",geometry:"Linear",angle:"180°",polarity:"Non-polar",atoms:[["N",2]],bonds:1,draw:[{e:"N",x:-.68,y:0,r:1.1},{e:"N",x:.68,y:0,r:1.1}],links:[[0,1]]},
 {id:"nacl",name:"Sodium Chloride",formula:"NaCl",mass:58.440,type:"Ionic compound",geometry:"Diatomic",angle:"—",polarity:"Ionic",atoms:[["Na",1],["Cl",1]],bonds:1,draw:[{e:"Na",x:-.85,y:0,r:1.2},{e:"Cl",x:.85,y:0,r:1.3}],links:[[0,1]]},
-{id:"ch4",name:"Methane",formula:"CH₄",mass:16.043,type:"Gas",geometry:"Tetrahedral",angle:"109.5°",polarity:"Non-polar",atoms:[["C",1],["H",4]],bonds:4,draw:[{e:"C",x:0,y:0,r:1.05},{e:"H",x:-.9,y:.55,r:.72},{e:"H",x:.9,y:.55,r:.72},{e:"H",x:-.7,y:-.7,r:.72},{e:"H",x:.7,y:-.7,r:.72}],links:[[0,1],[0,2],[0,3],[0,4]]}
+{id:"ch4",name:"Methane",formula:"CH₄",mass:16.043,type:"Gas",geometry:"Tetrahedral",angle:"109.5°",polarity:"Non-polar",atoms:[["C",1],["H",4]],bonds:4,draw:[{e:"C",x:0,y:0,r:1.05},{e:"H",x:-.9,y:.55,r:.72},{e:"H",x:.9,y:.55,r:.72},{e:"H",x:-.7,y:-.7,r:.72},{e:"H",x:.7,y:-.7,r:.72}],links:[[0,1],[0,2],[0,3],[0,4]]},
+{id:"nh3",name:"Ammonia",formula:"NH₃",mass:17.031,type:"Product / Gas",geometry:"Trigonal pyramidal",angle:"107°",polarity:"Polar",atoms:[["N",1],["H",3]],bonds:3,draw:[{e:"N",x:0,y:-.12,r:1.05},{e:"H",x:-.92,y:.55,r:.72},{e:"H",x:.92,y:.55,r:.72},{e:"H",x:0,y:.98,r:.72}],links:[[0,1],[0,2],[0,3]]}
 ];
 const colors={H:"#dce8f3",C:"#778694",O:"#df6c6c",N:"#628ee1",Na:"#c99252",Cl:"#67c978"};
 let selected=null,chamber=[],engine="CPU",zoom=1,rx=-.15,ry=.4,frame=0,drag=false,lx=0,ly=0;
@@ -162,12 +163,12 @@ function inspect(m){selected=m;document.getElementById("insTitle").textContent=m
  document.getElementById("mass").textContent=m.mass.toFixed(3)+" g/mol";document.getElementById("atoms").textContent=m.draw.length;document.getElementById("bonds").textContent=m.bonds;document.getElementById("geometry").textContent=m.geometry;document.getElementById("angle").textContent=m.angle;document.getElementById("polarity").textContent=m.polarity;
  const c=document.getElementById("composition");c.innerHTML="";m.atoms.forEach(a=>{const d=document.createElement("div");d.className="atom";d.innerHTML=`<span><strong>${a[0]}</strong> ${a[0]}</span><b>× ${a[1]}</b>`;c.appendChild(d)});draw();
 }
-function addChamber(m){let x=chamber.find(i=>i.m.id===m.id);if(x)x.qty++;else chamber.push({m,qty:1});inspect(m);renderChamber();draw();addLog("Substance added",`${m.formula} × 1`)}
-function changeQty(id,d){const x=chamber.find(i=>i.m.id===id);if(!x)return;x.qty+=d;if(x.qty<1)chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc()}
-function removeQty(id){const x=chamber.find(i=>i.m.id===id);chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc();if(x)addLog("Substance removed",x.m.formula)}
+function addChamber(m){if(simulationRunning){simulationRunning=false;document.getElementById("run").textContent="🔬 RUN SCIENTIFIC MODEL";}let x=chamber.find(i=>i.m.id===m.id);if(x)x.qty++;else chamber.push({m,qty:1});inspect(m);renderChamber();draw();addLog("Substance added",`${m.formula} × 1`)}
+function changeQty(id,d){if(simulationRunning){simulationRunning=false;document.getElementById("run").textContent="🔬 RUN SCIENTIFIC MODEL";}const x=chamber.find(i=>i.m.id===id);if(!x)return;x.qty+=d;if(x.qty<1)chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc()}
+function removeQty(id){if(simulationRunning){simulationRunning=false;document.getElementById("run").textContent="🔬 RUN SCIENTIFIC MODEL";}const x=chamber.find(i=>i.m.id===id);chamber=chamber.filter(i=>i.m.id!==id);renderChamber();draw();if(chamber.length)scientificCalc();if(x)addLog("Substance removed",x.m.formula)}
 function renderChamber(){const el=document.getElementById("chamber"),count=document.getElementById("chamberCount"),total=document.getElementById("totalUnits");if(!chamber.length){el.innerHTML='<div class="empty">Your chamber is empty.<br>Add substances from the library.</div>';count.textContent="0 substances";total.textContent="0";return}el.innerHTML="";let t=0;chamber.forEach(x=>{t+=x.qty;const d=document.createElement("div");d.className="item";d.innerHTML=`<div class="itop"><div><div class="iname">${x.m.name}</div><div class="formula">${x.m.formula}</div></div><button class="remove">×</button></div><div class="qrow"><button class="qbtn">−</button><div class="qval">${x.qty}</div><button class="qbtn">+</button><span class="unit">units</span></div>`;
  d.querySelector(".remove").onclick=()=>removeQty(x.m.id);const q=d.querySelectorAll(".qbtn");q[0].onclick=()=>changeQty(x.m.id,-1);q[1].onclick=()=>changeQty(x.m.id,1);el.appendChild(d)});count.textContent=`${chamber.length} substances`;total.textContent=t}
-function clearChamber(){if(!chamber.length)return;chamber=[];renderChamber();draw();document.getElementById("stageStatus").textContent="Chamber empty";addLog("Chamber cleared","All substances removed")}
+function clearChamber(){simulationRunning=false;particles=[];if(!chamber.length)return;chamber=[];renderChamber();draw();document.getElementById("stageStatus").textContent="Chamber empty";addLog("Chamber cleared","All substances removed")}
 function customMolecule(){const f=prompt("輸入化學式，例如 NH₃ 或 CH₄：");if(!f)return;const n=prompt("輸入名稱：","Custom Compound")||"Custom Compound";const m={id:"custom"+Date.now(),name:n,formula:f,mass:0,type:"Custom",geometry:"Unknown",angle:"—",polarity:"Unknown",atoms:[["?",1]],bonds:0,draw:[{e:"?",x:0,y:0,r:1}],links:[]};DB.push(m);renderLibrary();inspect(m);addLog("Custom substance created",f)}
 
 function resize(){const r=canvas.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)}
@@ -175,13 +176,203 @@ function rot(p){let x=p.x,y=p.y,z=0,cy=Math.cos(ry),sy=Math.sin(ry);let xx=x*cy-
 function proj(p){const w=canvas.clientWidth,h=canvas.clientHeight,s=145*zoom/(7-p.z);return{x:w/2+p.x*s,y:h/2-p.y*s,s,z:p.z}}
 function atom(a,p){let col=colors[a.e]||"#55d3ad",r=a.r*p.s*.52;let g=ctx.createRadialGradient(p.x-r*.35,p.y-r*.35,r*.05,p.x,p.y,r);g.addColorStop(0,"#fff");g.addColorStop(.18,col);g.addColorStop(1,"#162431");ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="#b9d5df66";ctx.stroke();ctx.fillStyle="#eff8ff";ctx.font=Math.max(8,r*.7)+"px Segoe UI";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(a.e,p.x,p.y)}
 function bond(a,b){ctx.strokeStyle="#6a8295";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
-function drawMol(m,cx,cy,k=.6){let ps=m.draw.map(a=>proj(rot(a)));ps.forEach(p=>{p.x=cx+(p.x-canvas.clientWidth/2)*k;p.y=cy+(p.y-canvas.clientHeight/2)*k;p.s*=k});m.links.forEach(l=>bond(ps[l[0]],ps[l[1]]));ps.sort((a,b)=>a.z-b.z);ps.forEach((p,i)=>atom(m.draw[i],p))}
-function draw(){resize();const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);if(!chamber.length){document.getElementById("canvasNote").textContent="Add substances to the chamber";return}
- document.getElementById("canvasNote").textContent=chamber.map(x=>x.m.formula+" × "+x.qty).join("   ·   ");document.getElementById("stageStatus").textContent="Ready";
- let arr=[];chamber.forEach(x=>{for(let i=0;i<Math.min(x.qty,5);i++)arr.push(x.m)});arr.forEach((m,i)=>{let a=i/Math.max(arr.length,1)*Math.PI*2,r=Math.min(w,h)*.25;drawMol(m,w/2+Math.cos(a)*r,h/2+Math.sin(a)*r*.55,.58)});
- for(let i=0;i<35;i++){let a=frame*.001+i*1.37,r=75+(i%8)*29;ctx.beginPath();ctx.arc(w/2+Math.cos(a)*r,h/2+Math.sin(a)*r*.6,1.2,0,Math.PI*2);ctx.fillStyle="#65b7dc77";ctx.fill()}
+
+function drawMol(m,cx,cy,k=.6,angle=0){
+  let ca=Math.cos(angle),sa=Math.sin(angle);
+  let ps=m.draw.map(a=>{
+    let q={x:a.x*ca-a.y*sa,y:a.x*sa+a.y*ca,z:0};
+    let p=proj(rot(q)); p.x=cx+(p.x-canvas.clientWidth/2)*k;p.y=cy+(p.y-canvas.clientHeight/2)*k;p.s*=k;return p;
+  });
+  m.links.forEach(l=>bond(ps[l[0]],ps[l[1]]));
+  const ordered=ps.map((p,i)=>({p,i})).sort((a,b)=>a.p.z-b.p.z);
+  ordered.forEach(o=>atom(m.draw[o.i],o.p));
 }
-function loop(){frame++;if(!drag&&chamber.length)ry+=.002;draw();requestAnimationFrame(loop)}
+
+let particles=[], simulationRunning=false, reactionCount=0, simTime=0, lastTs=0, effects=[];
+
+const REACTIONS={
+  "h2+o2":{reactants:["h2","o2"],consumes:{h2:2,o2:1},products:{water:2},label:"2 H₂ + O₂ → 2 H₂O"},
+  "n2+h2":{reactants:["n2","h2"],consumes:{n2:1,h2:3},products:{nh3:2},label:"N₂ + 3 H₂ → 2 NH₃"},
+  "ch4+o2":{reactants:["ch4","o2"],consumes:{ch4:1,o2:2},products:{co2:1,water:2},label:"CH₄ + 2 O₂ → CO₂ + 2 H₂O"}
+};
+
+function reactionDefinition(){
+  const ids=new Set(chamber.map(x=>x.m.id));
+  if(ids.has("h2")&&ids.has("o2")) return REACTIONS["h2+o2"];
+  if(ids.has("n2")&&ids.has("h2")) return REACTIONS["n2+h2"];
+  if(ids.has("ch4")&&ids.has("o2")) return REACTIONS["ch4+o2"];
+  return null;
+}
+function randomParticle(m){
+  const w=canvas.clientWidth||700,h=canvas.clientHeight||500;
+  const margin=55;
+  return {m,x:margin+Math.random()*Math.max(30,w-margin*2),y:margin+Math.random()*Math.max(30,h-margin*2),
+    vx:(Math.random()-.5)*.55,vy:(Math.random()-.5)*.55,angle:Math.random()*Math.PI*2,
+    spin:(Math.random()-.5)*.018,alive:true,flash:0};
+}
+function buildParticles(){
+  particles=[];
+  chamber.forEach(x=>{
+    for(let i=0;i<x.qty;i++){
+      // A maximum visual population keeps the browser responsive; chamber quantities remain the scientific state.
+      if(particles.length>=120) break;
+      particles.push(randomParticle(x.m));
+    }
+  });
+}
+function findParticle(id){return particles.find(p=>p.alive&&p.m.id===id);}
+function hasInventory(def){
+  return Object.entries(def.consumes).every(([id,n])=>(getItem(id)?.qty||0)>=n);
+}
+function consumeInventory(def){
+  Object.entries(def.consumes).forEach(([id,n])=>{
+    const item=getItem(id); if(item) item.qty-=n;
+  });
+  chamber=chamber.filter(x=>x.qty>0);
+}
+function addProduct(id,n,sourceX,sourceY){
+  const m=DB.find(x=>x.id===id); if(!m)return;
+  let item=getItem(id);
+  if(item)item.qty+=n; else chamber.push({m,qty:n});
+  // Spawn product particles from the reaction location.
+  for(let i=0;i<n && particles.length<120;i++){
+    const p=randomParticle(m);
+    p.x=sourceX+(Math.random()-.5)*18;p.y=sourceY+(Math.random()-.5)*18;
+    p.vx=(Math.random()-.5)*.8;p.vy=(Math.random()-.5)*.8;p.flash=1;
+    particles.push(p);
+  }
+}
+function reactionProbability(){
+  const T=Number(document.getElementById("temp").value)||25;
+  const C=Math.max(.001,Number(document.getElementById("conc").value)||1);
+  const P=Math.max(.0001,Number(document.getElementById("pressure").value)||1);
+  const tempFactor=Math.max(.12,Math.min(3.8,Math.exp((T-25)/45)));
+  const concFactor=Math.max(.25,Math.min(2.5,Math.sqrt(C)));
+  const pressureFactor=Math.max(.25,Math.min(2.0,Math.sqrt(P)));
+  return Math.max(.002,Math.min(.32,.035*tempFactor*concFactor*pressureFactor));
+}
+function moleculeRadius(m){return 18+Math.sqrt(m.draw.length)*3;}
+function colliding(a,b){
+  const dx=a.x-b.x,dy=a.y-b.y;
+  const rr=moleculeRadius(a.m)+moleculeRadius(b.m);
+  return dx*dx+dy*dy<rr*rr;
+}
+function tryReaction(a,b){
+  const def=reactionDefinition();
+  if(!def || !a.alive || !b.alive || a.m.id===b.m.id || !hasInventory(def))return false;
+  const ids=[a.m.id,b.m.id];
+  if(!def.reactants.every(id=>ids.includes(id)))return false;
+  if(Math.random()>reactionProbability())return false;
+
+  // For reactions requiring 3+ molecules, a collision is the trigger and the rest are selected nearby.
+  const selected=[a,b];
+  for(const needId of Object.keys(def.consumes)){
+    const need=def.consumes[needId];
+    const already=selected.filter(p=>p.m.id===needId).length;
+    for(let i=already;i<need;i++){
+      const candidate=particles.find(p=>p.alive&&p!==a&&p!==b&&p.m.id===needId&&Math.hypot(p.x-a.x,p.y-a.y)<110);
+      if(candidate)selected.push(candidate); else return false;
+    }
+  }
+  selected.forEach(p=>p.alive=false);
+  const x=selected.reduce((s,p)=>s+p.x,0)/selected.length;
+  const y=selected.reduce((s,p)=>s+p.y,0)/selected.length;
+  consumeInventory(def);
+  Object.entries(def.products).forEach(([id,n])=>addProduct(id,n,x,y));
+  effects.push({x,y,t:1,label:"REACTION"});
+  reactionCount++;
+  addLog("Molecular reaction",`${def.label} · collision → bond rearrangement → products formed`);
+  renderChamber(); scientificCalc();
+  return true;
+}
+function resolveBounce(a,b){
+  const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy)||.001;
+  const nx=dx/dist,ny=dy/dist;
+  const rel=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;
+  if(rel>0){a.vx-=rel*nx;a.vy-=rel*ny;b.vx+=rel*nx;b.vy+=rel*ny;}
+  const overlap=moleculeRadius(a.m)+moleculeRadius(b.m)-dist;
+  if(overlap>0){a.x-=nx*overlap*.5;a.y-=ny*overlap*.5;b.x+=nx*overlap*.5;b.y+=ny*overlap*.5;}
+}
+function syncParticlePopulation(){
+  // After a reaction the particle array already contains products. Reconcile only if manual chamber edits occurred.
+  const wanted=Math.min(120,chamber.reduce((s,x)=>s+x.qty,0));
+  if(!particles.length && wanted) buildParticles();
+}
+function drawEffects(){
+  effects=effects.filter(e=>e.t>0);
+  effects.forEach(e=>{
+    const r=16+(1-e.t)*38;
+    ctx.beginPath();ctx.arc(e.x,e.y,r,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(98,217,178,${e.t})`;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=`rgba(98,217,178,${e.t*.8})`;ctx.font="bold 9px Segoe UI";ctx.textAlign="center";ctx.fillText(e.label,e.x,e.y-r-5);
+    e.t-=.035;
+  });
+}
+function draw(){
+  resize();
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  if(!chamber.length){
+    document.getElementById("canvasNote").textContent="Add substances to the chamber";
+    return;
+  }
+  syncParticlePopulation();
+  const def=reactionDefinition();
+  document.getElementById("canvasNote").textContent=
+    simulationRunning ? `Simulation running · collisions ${Math.round(reactionCount)} · ${def?def.label:"No supported reaction"}` :
+    chamber.map(x=>x.m.formula+" × "+x.qty).join("   ·   ");
+  document.getElementById("stageStatus").textContent=
+    simulationRunning ? `Simulating · ${reactionCount} reactions` : (def?"Ready to react":"Ready");
+
+  particles.forEach(p=>{
+    if(!p.alive)return;
+    drawMol(p.m,p.x,p.y,.46,p.angle);
+    if(p.flash>0){ctx.beginPath();ctx.arc(p.x,p.y,22+(1-p.flash)*15,0,Math.PI*2);ctx.strokeStyle=`rgba(98,217,178,${p.flash})`;ctx.stroke();p.flash-=.025;}
+  });
+  drawEffects();
+  if(simulationRunning) drawReactionOverlay(w,h);
+}
+function drawReactionOverlay(w,h){
+  ctx.fillStyle="#07101d99";ctx.fillRect(10,h-39,270,27);
+  ctx.fillStyle="#86a0b8";ctx.font="8px Segoe UI";ctx.textAlign="left";
+  ctx.fillText(`Collision probability: ${(reactionProbability()*100).toFixed(1)}% · t=${simTime.toFixed(1)} s`,18,h-22);
+}
+function updateSimulation(dt){
+  if(!simulationRunning)return;
+  simTime+=dt;
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  const speed=0.7+Math.min(2.0,Math.sqrt(Math.max(0,Number(document.getElementById("temp").value)||25)+273.15)/12);
+  particles.forEach(p=>{
+    if(!p.alive)return;
+    p.x+=p.vx*speed*dt*60;p.y+=p.vy*speed*dt*60;p.angle+=p.spin*dt*60;
+    const r=moleculeRadius(p.m);
+    if(p.x<r){p.x=r;p.vx=Math.abs(p.vx)} if(p.x>w-r){p.x=w-r;p.vx=-Math.abs(p.vx)}
+    if(p.y<r){p.y=r;p.vy=Math.abs(p.vy)} if(p.y>h-r){p.y=h-r;p.vy=-Math.abs(p.vy)}
+  });
+  outer: for(let i=0;i<particles.length;i++){
+    const a=particles[i];if(!a.alive)continue;
+    for(let j=i+1;j<particles.length;j++){
+      const b=particles[j];if(!b.alive)continue;
+      if(colliding(a,b)){
+        if(tryReaction(a,b)) break outer;
+        resolveBounce(a,b);
+      }
+    }
+  }
+  particles=particles.filter(p=>p.alive);
+  const def=reactionDefinition();
+  if(!def || !hasInventory(def)){
+    simulationRunning=false;
+    document.getElementById("run").disabled=false;
+    document.getElementById("run").textContent="🔬 RUN SCIENTIFIC MODEL";
+    document.getElementById("stageStatus").textContent=def?"Reaction complete":"No supported reaction";
+    addLog("Simulation stopped",def?"A required reactant was exhausted.":"No supported reactant pair remains.");
+  }
+}
+function loop(ts=performance.now()){
+  const dt=Math.min(.05,(ts-lastTs||16)/1000);lastTs=ts;
+  frame++;updateSimulation(dt);draw();requestAnimationFrame(loop);
+}
 function zoomBy(d){zoom=Math.max(.5,Math.min(2.3,zoom+d));document.getElementById("zoomValue").textContent=Math.round(zoom*100)+"%"}
 canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?.1:-.1)},{passive:false});canvas.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY});window.addEventListener("mouseup",()=>drag=false);window.addEventListener("mousemove",e=>{if(!drag)return;ry+=(e.clientX-lx)*.01;rx=Math.max(-1.5,Math.min(1.5,rx+(e.clientY-ly)*.01));lx=e.clientX;ly=e.clientY});
 window.addEventListener("resize",resize);
@@ -214,11 +405,11 @@ function setThermo(enthalpyPerReaction,type,extent,note){
 }
 function clearThermo(){
   ["enthalpy","energyType","energyScale","systemEnergy"].forEach(id=>document.getElementById(id).textContent="—");
-  document.getElementById("thermoNote").textContent="V0.6 uses approximate standard reaction enthalpies for the supported educational reactions. It does not model heat transfer, kinetics, equilibrium, or actual temperature rise.";
+  document.getElementById("thermoNote").textContent="V1.0 keeps the V0.6 educational thermodynamics model. Heat transfer and real temperature evolution are not yet simulated.";
 }
 function clearConditions(){
   ["conditionState","relativeRate","conditionConc","pressureEffect"].forEach(id=>document.getElementById(id).textContent="—");
-  document.getElementById("conditionNote").textContent="V0.6 connects temperature, pressure, and concentration inputs to an educational reaction-condition model. It is qualitative and is not a real kinetic predictor.";
+  document.getElementById("conditionNote").textContent="V1.0 uses temperature, pressure and concentration to modulate a simplified collision-reaction probability. It is not experimentally calibrated.";
 }
 function estimateConditions(calc,reactionDetected){
   const C=Math.max(.001,Number(document.getElementById("conc").value)||1);
@@ -255,7 +446,7 @@ function kineticsParameters(reactionLine){
 function clearKinetics(){
   ["activationEnergy","arrheniusFactor","modelRate","reactionProgress"].forEach(id=>document.getElementById(id).textContent="—");
   document.getElementById("arrheniusEquation").textContent="k = A · exp(−Ea / RT)";
-  document.getElementById("kineticsNote").textContent="V0.6 adds an educational Arrhenius-style kinetics model. Parameters are illustrative, not experimentally calibrated, and do not predict real reaction rates.";
+  document.getElementById("kineticsNote").textContent="V1.0 retains the V0.6 Arrhenius-style display while the molecular view uses a separate normalized collision-probability model for animation stability.";
 }
 
 function updateKinetics(calc,reaction){
@@ -290,7 +481,7 @@ function updateKinetics(calc,reaction){
 function stoichReport(){
   const h2=getItem("h2"),o2=getItem("o2"),n2=getItem("n2"),ch4=getItem("ch4");
   let line="No supported reaction detected.";
-  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run a V0.6 educational model.";
+  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run the V1.0 reaction simulation.";
   let limiting="—",product="—",excess="",extent=0;
 
   if(h2 && o2){
@@ -337,7 +528,7 @@ function stoichReport(){
 function stoichReport(){
   const h2=getItem("h2"),o2=getItem("o2"),n2=getItem("n2"),ch4=getItem("ch4");
   let line="No supported reaction detected.";
-  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run a V0.5 educational model.";
+  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run the V1.0 reaction simulation.";
   let limiting="—",product="—",excess="",extent=0;
 
   if(h2 && o2){
@@ -381,26 +572,46 @@ function stoichReport(){
   }
   return {line,limiting,product,excess,extent};
 }
+
 async function runScience(){
   if(!chamber.length){alert("請先加入至少一種物質。");return}
-  const btn=document.getElementById("run");
-  btn.disabled=true;btn.textContent="⏳ CALCULATING...";
+  if(simulationRunning){
+    simulationRunning=false;
+    document.getElementById("run").textContent="▶ RESUME SIMULATION";
+    document.getElementById("stageStatus").textContent="Simulation paused";
+    return;
+  }
   const calc=scientificCalc(),reaction=stoichReport();
   const conditions=estimateConditions(calc,reaction.line!=="No supported reaction detected.");
   const kinetics=updateKinetics(calc,reaction);
-  await new Promise(r=>setTimeout(r,700));
-  addLog("Kinetics model completed",
-    `Total ${calc.n.toFixed(3)} mol · PV=nRT ${calc.V.toFixed(3)} L · ${calc.T.toFixed(1)} °C · ${calc.P.toFixed(2)} atm · ${reaction.line} · ${reaction.limiting!=="—"?"Limiting: "+reaction.limiting+" · ":""}Condition: ${conditions.state} · Rate index: ${conditions.rate==="—"?"—":conditions.rate.toFixed(2)+"×"} · ${kinetics?`Ea ${(kinetics.Ea/1000).toFixed(1)} kJ/mol · k ${kinetics.k.toExponential(2)} s⁻¹ · progress ${kinetics.progress.toFixed(1)}%`:"No kinetics model"}`);
-  btn.disabled=false;btn.textContent="🔬 RUN SCIENTIFIC MODEL";
+  const def=reactionDefinition();
+  if(!def){
+    alert("V1.0 目前支援：2 H₂ + O₂ → 2 H₂O、N₂ + 3 H₂ → 2 NH₃、CH₄ + 2 O₂ → CO₂ + 2 H₂O");
+    return;
+  }
+  if(!hasInventory(def)){
+    alert("反應物數量不足以完成下一個化學計量事件。");
+    return;
+  }
+  reactionCount=0;simTime=0;effects=[];buildParticles();simulationRunning=true;
+  document.getElementById("run").disabled=false;
+  document.getElementById("run").textContent="⏸ PAUSE SIMULATION";
+  document.getElementById("stageStatus").textContent="Simulating";
+  addLog("V1.0 simulation started",`${def.label} · particles=${particles.length} · collision probability ${(reactionProbability()*100).toFixed(1)}%`);
+  if(kinetics) document.getElementById("reactionProgress").textContent="0.0% → live simulation";
 }
+
 function resetAll(){
+  simulationRunning=false;particles=[];effects=[];reactionCount=0;simTime=0;
   chamber=[];selected=null;renderChamber();
   ["volume","moles","calcTemp","calcPressure"].forEach(id=>document.getElementById(id).textContent="—");
   document.getElementById("reactionLine").textContent="Add supported reactants to the chamber.";
-  document.getElementById("reactionNote").textContent="V0.6 performs educational stoichiometric, thermodynamic, condition, and kinetics checks. It does not predict arbitrary chemistry, equilibrium, heat transfer, or reaction safety.";
+  document.getElementById("reactionNote").textContent="V1.0 performs the educational calculations and can now execute a simplified particle-level reaction simulation.";
   document.getElementById("stoichGrid").style.display="none";
   document.getElementById("excessBox").style.display="none";
   clearThermo();clearConditions();clearKinetics();
+  document.getElementById("run").disabled=false;
+  document.getElementById("run").textContent="🔬 RUN SCIENTIFIC MODEL";
   document.getElementById("stageStatus").textContent="Chamber empty";draw();addLog("Experiment reset","Conditions and chamber reset");
 }
 function addLog(t,d){const l=document.getElementById("log"),e=document.getElementById("emptyLog");if(e)e.remove();const x=document.createElement("div");x.className="logitem";x.innerHTML=`<div class="time">${new Date().toLocaleTimeString()}</div><div class="ltitle">${t}</div><div class="ldesc">${d}</div>`;l.prepend(x)}

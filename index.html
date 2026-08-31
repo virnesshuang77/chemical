@@ -205,7 +205,7 @@ button,input,select{font:inherit}button{cursor:pointer}
  <div class="panel"><div class="head"><b>EXPERIMENT LOG</b><button class="add" style="width:auto;margin:0;padding:0 8px" onclick="clearLog()">Clear</button></div><div class="content"><div id="log" class="log"><div id="emptyLog" class="muted">No experiments yet.</div></div></div></div>
 </aside>
 </main>
-<footer class="footer">Virtual Chemistry Lab V1.0 · Browser-based molecular reaction simulation · Educational model · Not a substitute for laboratory validation</footer>
+<footer class="footer">Virtual Chemistry Lab V1.1 · Browser-based molecular reaction simulation · Educational model · Not a substitute for laboratory validation</footer>
 </div>
 
 <script>
@@ -675,53 +675,6 @@ function stoichReport(){
     limiting=(h/2<o)?"H₂":"O₂";
     line="2 H₂ + O₂ → 2 H₂O";product=`H₂O ${h2o.toFixed(3)} mol`;
     note="Stoichiometric model: the balanced equation determines the limiting reagent. Actual reaction mechanism and kinetics are not modeled.";
-    excess=`Remaining after theoretical conversion: H₂ ${remH.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
-    setThermo(-571.6,"Exothermic",extent,"Approximate standard enthalpy for 2 mol H₂O(l) formed: −571.6 kJ. Educational reference only.");
-  }else if(n2 && h2){
-    const n=n2.qty,h=h2.qty;extent=Math.min(n,h/3);
-    const nh3=2*extent,remN=n-extent,remH=h-3*extent;
-    limiting=(n<h/3)?"N₂":"H₂";
-    line="N₂ + 3 H₂ → 2 NH₃";product=`NH₃ ${nh3.toFixed(3)} mol`;
-    note="Stoichiometric model only. Catalyst, equilibrium, pressure effects and kinetics are not calculated.";
-    excess=`Remaining after theoretical conversion: N₂ ${remN.toFixed(3)} mol · H₂ ${remH.toFixed(3)} mol`;
-    setThermo(-92.2,"Exothermic",extent,"Approximate standard enthalpy for 2 mol NH₃(g) formed: −92.2 kJ. Educational reference only.");
-  }else if(ch4 && o2){
-    const c=ch4.qty,o=o2.qty;extent=Math.min(c,o/2);
-    const co2=extent,h2o=2*extent,remC=c-extent,remO=o-2*extent;
-    limiting=(c<o/2)?"CH₄":"O₂";
-    line="CH₄ + 2 O₂ → CO₂ + 2 H₂O";product=`CO₂ ${co2.toFixed(3)} mol · H₂O ${h2o.toFixed(3)} mol`;
-    note="Educational combustion stoichiometry only. Ignition, heat release, kinetics and safety conditions are not modeled.";
-    excess=`Remaining after theoretical conversion: CH₄ ${remC.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
-    setThermo(-802.3,"Exothermic",extent,"Approximate standard enthalpy for CH₄(g) combustion to H₂O(l): −802.3 kJ per mol CH₄. Educational reference only.");
-  }else{
-    clearThermo();
-  }
-
-  document.getElementById("reactionLine").textContent=line;
-  document.getElementById("reactionNote").textContent=note;
-  const grid=document.getElementById("stoichGrid"),box=document.getElementById("excessBox");
-  if(line!=="No supported reaction detected."){
-    grid.style.display="grid";
-    document.getElementById("limiting").textContent=limiting;
-    document.getElementById("productYield").textContent=product;
-    box.style.display="block";box.textContent=excess||"No excess reactant.";
-  }else{
-    grid.style.display="none";box.style.display="none";
-  }
-  return {line,limiting,product,excess,extent};
-}
-function stoichReport(){
-  const h2=getItem("h2"),o2=getItem("o2"),n2=getItem("n2"),ch4=getItem("ch4");
-  let line="No supported reaction detected.";
-  let note="Add H₂ + O₂, N₂ + H₂, or CH₄ + O₂ to run the V1.0 reaction simulation.";
-  let limiting="—",product="—",excess="",extent=0;
-
-  if(h2 && o2){
-    const h=h2.qty,o=o2.qty;extent=Math.min(h/2,o);
-    const h2o=2*extent,remH=h-2*extent,remO=o-extent;
-    limiting=(h/2<o)?"H₂":"O₂";
-    line="2 H₂ + O₂ → 2 H₂O";product=`H₂O ${h2o.toFixed(3)} mol`;
-    note="Stoichiometric model: the balanced equation determines the limiting reagent. Actual reaction conditions and kinetics are not modeled.";
     excess=`Remaining after theoretical conversion: H₂ ${remH.toFixed(3)} mol · O₂ ${remO.toFixed(3)} mol`;
     setThermo(-571.6,"Exothermic",extent,"Approximate standard enthalpy for 2 mol H₂O(l) formed: −571.6 kJ. Educational reference only.");
   }else if(n2 && h2){

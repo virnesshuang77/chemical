@@ -558,6 +558,10 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?.1:-.1)
 window.addEventListener("resize",resize);
 
 async function detect(){try{if(navigator.gpu&&await navigator.gpu.requestAdapter()){engine="WebGPU";document.getElementById("dot").className="dot ok";document.getElementById("statusText").textContent="WebGPU acceleration available";return}}catch(e){}engine="CPU";document.getElementById("statusText").textContent="CPU fallback mode"}
+function getItem(id){
+  return chamber.find(x=>x.m.id===id);
+}
+
 function getChamberMoles(){
   return chamber.reduce((sum,x)=>sum+x.qty,0);
 }

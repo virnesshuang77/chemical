@@ -135,7 +135,7 @@ button,input,select{font:inherit}button{cursor:pointer}
    <div class="control"><label>CONCENTRATION</label><input id="conc" type="number" value="1" step=".1" min=".001"><span class="unit2">mol/L</span></div>
    <div class="control"><label>AMOUNT</label><input id="amount" type="number" value="1" step=".1" min=".001"><span class="unit2">mol</span></div>
   </div>
-  <div class="action"><button id="run" class="run" onclick="runScience()">🔬 RUN SCIENTIFIC MODEL</button><button class="reset" onclick="resetAll()">Reset</button></div>
+  <div class="action"><button id="run" class="run" type="button" onclick="runScience()">🔬 RUN SCIENTIFIC MODEL</button><button class="reset" onclick="resetAll()">Reset</button></div>
  </div>
 </section>
 
@@ -700,33 +700,72 @@ function stoichReport(){
 }
 
 async function runScience(){
-  if(!chamber.length){alert("請先加入至少一種物質。");return}
-  if(simulationRunning){
+  const btn=document.getElementById("run");
+  try{
+    if(!chamber.length){
+      document.getElementById("stageStatus").textContent="Chamber empty";
+      addLog("Simulation blocked","Please add reactants to the chamber first.");
+      return;
+    }
+
+    // Second click pauses; a paused simulation resumes from the same state.
+    if(simulationRunning){
+      simulationRunning=false;
+      btn.disabled=false;
+      btn.textContent="▶ RESUME SIMULATION";
+      document.getElementById("stageStatus").textContent="Simulation paused";
+      addLog("Simulation paused","Particle positions and reaction state were preserved.");
+      return;
+    }
+
+    const calc=scientificCalc();
+    const reaction=stoichReport();
+    const supported=reaction.line!=="No supported reaction detected.";
+    const conditions=estimateConditions(calc,supported);
+    const kinetics=updateKinetics(calc,reaction);
+    const def=reactionDefinition();
+
+    if(!def){
+      btn.disabled=false;
+      document.getElementById("stageStatus").textContent="Unsupported reaction";
+      addLog("Reaction not supported","V1.1 supports H₂ + O₂, N₂ + H₂, and CH₄ + O₂.");
+      return;
+    }
+
+    if(!hasInventory(def)){
+      btn.disabled=false;
+      document.getElementById("stageStatus").textContent="Insufficient reactants";
+      addLog("Insufficient reactants","The chamber does not contain enough reactants for one complete stoichiometric event.");
+      return;
+    }
+
+    reactionCount=0;
+    simTime=0;
+    effects=[];
+    reactionEvents=[];
+    reactionLock=false;
+
+    buildParticles();
+    if(!particles.length) throw new Error("Particle initialization failed.");
+
+    simulationRunning=true;
+    btn.disabled=false;
+    btn.textContent="⏸ PAUSE SIMULATION";
+    document.getElementById("stageStatus").textContent="Simulating";
+
+    addLog(
+      "V1.1 simulation started",
+      `${def.label} · visual particles=${particles.length} · collision probability ${(reactionProbability()*100).toFixed(1)}%`
+    );
+    if(kinetics) document.getElementById("reactionProgress").textContent="0.0% → live simulation";
+  }catch(err){
     simulationRunning=false;
-    document.getElementById("run").textContent="▶ RESUME SIMULATION";
-    document.getElementById("stageStatus").textContent="Simulation paused";
-    return;
+    btn.disabled=false;
+    btn.textContent="🔬 RUN SCIENTIFIC MODEL";
+    document.getElementById("stageStatus").textContent="Simulation error";
+    addLog("Simulation error",String(err && err.message ? err.message : err));
+    console.error("Virtual Chemistry Lab V1.1:",err);
   }
-  const calc=scientificCalc(),reaction=stoichReport();
-  const conditions=estimateConditions(calc,reaction.line!=="No supported reaction detected.");
-  const kinetics=updateKinetics(calc,reaction);
-  const def=reactionDefinition();
-  if(!def){
-    document.getElementById("stageStatus").textContent="Unsupported reaction";
-    addLog("Reaction not supported","V1.1 currently supports H₂ + O₂, N₂ + H₂, and CH₄ + O₂ reaction systems with simplified bond-rearrangement visualization.");
-    return;
-  }
-  if(!hasInventory(def)){
-    document.getElementById("stageStatus").textContent="Insufficient reactants";
-    addLog("Insufficient reactants","Current chamber inventory cannot satisfy the next stoichiometric reaction event.");
-    return;
-  }
-  reactionCount=0;simTime=0;effects=[];buildParticles();simulationRunning=true;
-  document.getElementById("run").disabled=false;
-  document.getElementById("run").textContent="⏸ PAUSE SIMULATION";
-  document.getElementById("stageStatus").textContent="Simulating";
-  addLog("V1.1 simulation started",`${def.label} · particles=${particles.length} · collision probability ${(reactionProbability()*100).toFixed(1)}%`);
-  if(kinetics) document.getElementById("reactionProgress").textContent="0.0% → live simulation";
 }
 
 function resetAll(){
